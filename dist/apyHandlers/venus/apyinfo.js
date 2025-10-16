@@ -1,0 +1,92 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.fetchAndStoreVenusApy = void 0;
+const axios_1 = __importDefault(require("axios"));
+const apy_1 = require("../../models/apy");
+const constants_1 = require("../../constants");
+const ethers_1 = require("ethers");
+const fetchAndStoreVenusApy = async (tokenAddress, orm) => {
+    try {
+        const res = await axios_1.default.get('https://api.venus.io/pools');
+        const ethereumRecord = res.data?.result || [];
+        if (!tokenAddress) {
+            return;
+        }
+        const tokenAddresss = ethers_1.ethers.isAddress(tokenAddress) ? tokenAddress : constants_1.SIMILAR_TOKENS_AND_CURRENY[tokenAddress];
+        const currentChain = constants_1.SUPPORTED_TOKENS_TO_MARKETS[tokenAddresss];
+        // console.log('curre ',currentChain)
+        const ethChain = ethereumRecord.find((p) => p.chainId === '1');
+        const arbitrumChain = ethereumRecord.find((p) => p.chainId === '42161');
+        const bscChain = ethereumRecord.find((p) => p.chainId === '56' &&
+            p.name === "Core Pool");
+        const bscChainWBnb = ethereumRecord.find((p) => p.chainId === '56' &&
+            p.name === "Liquid Staked BNB");
+        if (!ethChain) {
+            console.log('ar ', arbitrumChain, bscChain, orm);
+        }
+        if (ethChain && currentChain.chainId == 1 && currentChain.market == 'USDT') {
+            const usdtEthereum = ethChain.markets.find((p) => p.underlyingAddress.toLowerCase() === tokenAddresss.toLowerCase());
+            const apy = new apy_1.Apy("Venus", tokenAddress, usdtEthereum.supplyApy, usdtEthereum.borrowApy, "0");
+            await orm.em.persistAndFlush(apy);
+        }
+        if (ethChain && currentChain.chainId == 1 && currentChain.market == 'USDC') {
+            const usdcEthereum = ethChain.markets.find((p) => p.underlyingAddress.toLowerCase() === tokenAddresss.toLowerCase());
+            const apy = new apy_1.Apy("Venus", tokenAddress, usdcEthereum.supplyApy, usdcEthereum.borrowApy, "0");
+            await orm.em.persistAndFlush(apy);
+        }
+        if (ethChain && currentChain.chainId == 1 && currentChain.market == 'WETH') {
+            const wethEthereum = ethChain.markets.find((p) => p.underlyingAddress.toLowerCase() === tokenAddresss.toLowerCase());
+            const apy = new apy_1.Apy("Venus", tokenAddress, wethEthereum.supplyApy, wethEthereum.borrowApy, "0");
+            await orm.em.persistAndFlush(apy);
+        }
+        if (ethChain && currentChain.chainId == 1 && currentChain.market == 'DAI') {
+            const daiEthereum = ethChain.markets.find((p) => p.underlyingAddress.toLowerCase() === tokenAddresss.toLowerCase());
+            const apy = new apy_1.Apy("Venus", tokenAddress, daiEthereum.supplyApy, daiEthereum.borrowApy, "0");
+            await orm.em.persistAndFlush(apy);
+        }
+        if (arbitrumChain && currentChain.chainId == 42161 && currentChain.market == 'USDT') {
+            const usdtArbitrum = arbitrumChain.markets.find((p) => p.underlyingAddress.toLowerCase() === tokenAddresss.toLowerCase());
+            const apy = new apy_1.Apy("Venus", tokenAddress, usdtArbitrum.supplyApy, usdtArbitrum.borrowApy, "0");
+            await orm.em.persistAndFlush(apy);
+        }
+        if (arbitrumChain && currentChain.chainId == 42161 && currentChain.market == 'USDC') {
+            const usdcArbitrum = arbitrumChain.markets.find((p) => p.underlyingAddress.toLowerCase() === tokenAddresss.toLowerCase());
+            const apy = new apy_1.Apy("Venus", tokenAddress, usdcArbitrum.supplyApy, usdcArbitrum.borrowApy, "0");
+            await orm.em.persistAndFlush(apy);
+        }
+        if (arbitrumChain && currentChain.chainId == 42161 && currentChain.market == 'WETH') {
+            const wethArbitrum = arbitrumChain.markets.find((p) => p.underlyingAddress.toLowerCase() === tokenAddresss.toLowerCase());
+            const apy = new apy_1.Apy("Venus", tokenAddress, wethArbitrum.supplyApy, wethArbitrum.borrowApy, "0");
+            await orm.em.persistAndFlush(apy);
+        }
+        if (bscChain && currentChain.chainId == 56 && currentChain.market == 'USDT') {
+            const usdtBSC = bscChain.markets.find((p) => p.underlyingAddress?.toLowerCase() === tokenAddresss.toLowerCase());
+            const apy = new apy_1.Apy("Venus", tokenAddress, usdtBSC.supplyApy, usdtBSC.borrowApy, "0");
+            await orm.em.persistAndFlush(apy);
+        }
+        if (bscChain && currentChain.chainId == 56 && currentChain.market == 'USDC') {
+            const usdcBSC = bscChain.markets.find((p) => p.underlyingAddress?.toLowerCase() === tokenAddresss.toLowerCase());
+            const apy = new apy_1.Apy("Venus", tokenAddress, usdcBSC.supplyApy, usdcBSC.borrowApy, "0");
+            await orm.em.persistAndFlush(apy);
+        }
+        if (bscChain && currentChain.chainId == 56 && currentChain.market == 'DAI') {
+            const daiBSC = bscChain.markets.find((p) => p.underlyingAddress?.toLowerCase() === tokenAddresss.toLowerCase());
+            const apy = new apy_1.Apy("Venus", tokenAddress, daiBSC.supplyApy, daiBSC.borrowApy, "0");
+            await orm.em.persistAndFlush(apy);
+        }
+        if (bscChainWBnb && currentChain.chainId == 56 && currentChain.market == 'WBNB') {
+            const wbnbBSC = bscChainWBnb.markets.find((p) => p.underlyingAddress?.toLowerCase() === tokenAddresss.toLowerCase());
+            const apy = new apy_1.Apy("Venus", tokenAddress, wbnbBSC.supplyApy, wbnbBSC.borrowApy, "0");
+            await orm.em.persistAndFlush(apy);
+        }
+        console.log('APY data saved for vWETH_Core');
+    }
+    catch (err) {
+        console.error('Failed to fetch and store Venus APY:', err instanceof Error ? err.message : 'Unknown error');
+    }
+};
+exports.fetchAndStoreVenusApy = fetchAndStoreVenusApy;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYXB5aW5mby5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uLy4uLy4uL3NyYy9hcHlIYW5kbGVycy92ZW51cy9hcHlpbmZvLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7Ozs7OztBQUFBLGtEQUEwQjtBQUMxQiwwQ0FBdUM7QUFFdkMsK0NBQTBGO0FBQzFGLG1DQUFnQztBQUN6QixNQUFNLHFCQUFxQixHQUFHLEtBQUssRUFBRSxZQUFvQixFQUFFLEdBQWEsRUFBRSxFQUFFO0lBQy9FLElBQUksQ0FBQztRQUNELE1BQU0sR0FBRyxHQUFHLE1BQU0sZUFBSyxDQUFDLEdBQUcsQ0FBQyw0QkFBNEIsQ0FBQyxDQUFDO1FBQzFELE1BQU0sY0FBYyxHQUFHLEdBQUcsQ0FBQyxJQUFJLEVBQUUsTUFBTSxJQUFJLEVBQUUsQ0FBQztRQUM5QyxJQUFJLENBQUMsWUFBWSxFQUFFLENBQUM7WUFDaEIsT0FBTTtRQUNWLENBQUM7UUFFRCxNQUFNLGFBQWEsR0FBRyxlQUFNLENBQUMsU0FBUyxDQUFDLFlBQVksQ0FBQyxDQUFDLENBQUMsQ0FBQyxZQUFZLENBQUMsQ0FBQyxDQUFDLHNDQUEwQixDQUFDLFlBQVksQ0FBQyxDQUFDO1FBRS9HLE1BQU0sWUFBWSxHQUFHLHVDQUEyQixDQUFDLGFBQWEsQ0FBQyxDQUFBO1FBQy9ELHFDQUFxQztRQUNyQyxNQUFNLFFBQVEsR0FBRyxjQUFjLENBQUMsSUFBSSxDQUNoQyxDQUFDLENBQXNCLEVBQUUsRUFBRSxDQUN2QixDQUFDLENBQUMsT0FBTyxLQUFLLEdBQUcsQ0FDeEIsQ0FBQztRQUVGLE1BQU0sYUFBYSxHQUFHLGNBQWMsQ0FBQyxJQUFJLENBQ3JDLENBQUMsQ0FBc0IsRUFBRSxFQUFFLENBQ3ZCLENBQUMsQ0FBQyxPQUFPLEtBQUssT0FBTyxDQUM1QixDQUFDO1FBQ0YsTUFBTSxRQUFRLEdBQUcsY0FBYyxDQUFDLElBQUksQ0FDaEMsQ0FBQyxDQUFvQyxFQUFFLEVBQUUsQ0FDckMsQ0FBQyxDQUFDLE9BQU8s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

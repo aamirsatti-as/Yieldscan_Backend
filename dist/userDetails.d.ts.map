@@ -1,0 +1,1 @@
+{"version":3,"file":"userDetails.d.ts","sourceRoot":"","sources":["../src/userDetails.ts"],"names":[],"mappings":"AAGA,OAAO,EAAE,aAAa,EAAE,eAAe,EAAE,UAAU,EAAE,MAAM,iBAAiB,CAAC;AAqO7E,wBAAsB,mBAAmB,CACvC,EAAE,EAAE,aAAa,CAAC,eAAe,CAAC,UAAU,CAAC,CAAC,EAC9C,aAAa,EAAE,MAAM,EACrB,WAAW,EAAE,GAAG,CAAC,MAAM,EAAE,GAAG,CAAC,EAC7B,SAAS,EAAE,MAAM;;;;;kCAOO,MAAM;mCACL,MAAM;;;;;GA8LhC"}

@@ -1,0 +1,12 @@
+.loading-container {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+/* .loading-number {
+  font-size: 18px;
+  font-weight: bold;
+  color: #f93e3e;
+} */

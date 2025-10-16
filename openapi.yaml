@@ -1,0 +1,2095 @@
+openapi: 3.0.3
+info:
+  title: YieldScan Backend API
+  description: |
+    API for managing crypto assets, their yield-generating steps, and retrieving APY data.
+    This API supports protocol-based step organization with comprehensive asset and step management capabilities.
+  version: 1.0.0
+  contact:
+    name: YieldScan Team
+servers:
+  - url: http://localhost:4023/api
+    description: Local development server
+  - url: https://api.yieldscan.com/api
+    description: Production server
+
+paths:
+  # Assets API
+  /assets:
+    get:
+      tags:
+        - Assets
+      summary: Get all assets
+      description: Retrieve all assets with optional filtering
+      parameters:
+        - name: chain
+          in: query
+          description: Filter by blockchain network
+          schema:
+            type: string
+            example: ETH
+        - name: protocol
+          in: query
+          description: Filter by protocol name
+          schema:
+            type: string
+            example: Aave
+        - name: yieldBearingToken
+          in: query
+          description: Filter by yield-bearing token status
+          schema:
+            type: boolean
+        - name: token
+          in: query
+          description: Filter by token name (case-insensitive regex)
+          schema:
+            type: string
+            example: USDT
+        - name: enabled
+          in: query
+          description: Filter by enabled status
+          schema:
+            type: boolean
+        - name: includeDisabled
+          in: query
+          description: Include disabled assets in results
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  assets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Asset'
+                  count:
+                    type: integer
+                    example: 25
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Assets
+      summary: Create a new asset
+      description: Create a new crypto asset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAssetRequest'
+      responses:
+        '201':
+          description: Asset created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Asset created successfully
+                  asset:
+                    $ref: '#/components/schemas/Asset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /assets/{id}:
+    get:
+      tags:
+        - Assets
+      summary: Get asset by ID
+      description: Retrieve a specific asset by its ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Asset ID
+          schema:
+            type: string
+            example: 684a8cf6db44b98888f22f5f
+        - name: includeDisabled
+          in: query
+          description: Include disabled assets in results
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  asset:
+                    $ref: '#/components/schemas/Asset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Assets
+      summary: Update asset
+      description: Update an existing asset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Asset ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAssetRequest'
+      responses:
+        '200':
+          description: Asset updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Asset updated successfully
+                  asset:
+                    $ref: '#/components/schemas/Asset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Assets
+      summary: Delete asset
+      description: Delete an asset by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Asset ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Asset deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Asset deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /assets/address/{address}:
+    get:
+      tags:
+        - Assets
+      summary: Get asset by address
+      description: Retrieve an asset by its contract address
+      parameters:
+        - name: address
+          in: path
+          required: true
+          description: Contract address
+          schema:
+            type: string
+            example: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+        - name: chain
+          in: query
+          description: Filter by blockchain network
+          schema:
+            type: string
+            example: ETH
+        - name: includeDisabled
+          in: query
+          description: Include disabled assets in results
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  asset:
+                    $ref: '#/components/schemas/Asset'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /assets/bulk:
+    post:
+      tags:
+        - Assets
+      summary: Bulk create assets
+      description: Create multiple assets in a single request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assets:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CreateAssetRequest'
+              required:
+                - assets
+      responses:
+        '201':
+          description: Assets created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "5 assets created successfully"
+                  assets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Asset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Steps API
+  /steps:
+    get:
+      tags:
+        - Steps
+      summary: Get all steps
+      description: Retrieve all steps with optional filtering
+      parameters:
+        - name: assetId
+          in: query
+          description: Filter by asset ID
+          schema:
+            type: string
+        - name: chain
+          in: query
+          description: Filter by blockchain network
+          schema:
+            type: string
+            example: ETH
+        - name: protocol
+          in: query
+          description: Filter by protocol name
+          schema:
+            type: string
+            example: Aave
+        - name: enabled
+          in: query
+          description: Filter by enabled status
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  steps:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Step'
+                  count:
+                    type: integer
+                    example: 12
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Steps
+      summary: Create a new step
+      description: Create a new yield generation step for an asset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStepRequest'
+      responses:
+        '201':
+          description: Step created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Step created successfully
+                  step:
+                    $ref: '#/components/schemas/Step'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /steps/{id}:
+    get:
+      tags:
+        - Steps
+      summary: Get step by ID
+      description: Retrieve a specific step by its ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Step ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  step:
+                    $ref: '#/components/schemas/Step'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Steps
+      summary: Update step
+      description: Update an existing step
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Step ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStepRequest'
+      responses:
+        '200':
+          description: Step updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Step updated successfully
+                  step:
+                    $ref: '#/components/schemas/Step'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Steps
+      summary: Delete step
+      description: Delete a step by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Step ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Step deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Step deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /steps/asset/{assetId}:
+    get:
+      tags:
+        - Steps
+      summary: Get steps by asset ID
+      description: Retrieve all steps for a specific asset
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          description: Asset ID
+          schema:
+            type: string
+            example: 684a8cf6db44b98888f22f5f
+        - name: includeDisabled
+          in: query
+          description: Include disabled steps in results
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  steps:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Step'
+                  count:
+                    type: integer
+                    example: 3
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /steps/asset/{assetId}/protocol/{protocol}:
+    get:
+      tags:
+        - Steps
+      summary: Get steps by asset ID and protocol
+      description: Retrieve steps for a specific asset and protocol combination (case-insensitive)
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          description: Asset ID
+          schema:
+            type: string
+            example: 684a8cf6db44b98888f22f5f
+        - name: protocol
+          in: path
+          required: true
+          description: Protocol name (case-insensitive, use 'general' for null protocol)
+          schema:
+            type: string
+            example: aave
+        - name: includeDisabled
+          in: query
+          description: Include disabled steps in results
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  steps:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Step'
+                  count:
+                    type: integer
+                    example: 2
+                  assetId:
+                    type: string
+                    example: 684a8cf6db44b98888f22f5f
+                  protocol:
+                    type: string
+                    example: aave
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /steps/contract/{contractAddress}/chain/{chainId}/protocol/{protocol}:
+    get:
+      tags:
+        - Steps
+      summary: Get steps by contract address, chain ID, and protocol
+      description: |
+        Retrieve steps for a specific asset identified by contract address and chain ID, filtered by protocol (case-insensitive).
+        The endpoint first finds the asset matching the contract address and chain ID, then returns steps for that asset and protocol.
+        Chain ID is mapped to chain name (1: ETH, 42161: ARB, 56: BSC) and used to filter assets.
+      parameters:
+        - name: contractAddress
+          in: path
+          required: true
+          description: Asset contract address (must be a valid Ethereum address format)
+          schema:
+            type: string
+            pattern: '^0x[a-fA-F0-9]{40}$'
+            example: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+        - name: chainId
+          in: path
+          required: true
+          description: Blockchain chain ID (1 for ETH, 42161 for ARB, 56 for BSC)
+          schema:
+            type: integer
+            enum: [1, 42161, 56]
+            example: 1
+        - name: protocol
+          in: path
+          required: true
+          description: Protocol name (case-insensitive, use 'general' for null protocol)
+          schema:
+            type: string
+            example: radiant
+        - name: includeDisabled
+          in: query
+          description: Include disabled steps in results
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  steps:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Step'
+                  count:
+                    type: integer
+                    example: 2
+                  contractAddress:
+                    type: string
+                    example: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+                  chainId:
+                    type: integer
+                    example: 1
+                  chainName:
+                    type: string
+                    description: Chain name mapped from chain ID
+                    example: "ETH"
+                  protocol:
+                    type: string
+                    example: radiant
+                  assetId:
+                    type: string
+                    description: ID of the asset found by contract address and chain
+                    example: "684a8cf6db44b98888f22f5f"
+                  message:
+                    type: string
+                    description: Optional message when no asset is found
+                    example: "No asset found with this contract address and chain"
+              examples:
+                successful_response:
+                  summary: Successful response with steps
+                  value:
+                    steps:
+                      - assetId: "684a8cf6db44b98888f22f5f"
+                        order: 1
+                        title: "Approve USDT"
+                        description: "Approve USDT tokens for spending by the Radiant protocol contract"
+                        chain: "ETH"
+                        protocol: "Radiant"
+                        contractAddress: "0xA950974f64aA33f27F6C5e017eEE93BF7588ED07"
+                        enabled: true
+                        id: "6850145888edceba9255e515"
+                    count: 2
+                    contractAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+                    chainId: 1
+                    chainName: "ETH"
+                    protocol: "radiant"
+                    assetId: "684a8cf6db44b98888f22f5f"
+                no_asset_found:
+                  summary: No asset found for contract address
+                  value:
+                    steps: []
+                    count: 0
+                    contractAddress: "0x1234567890123456789012345678901234567890"
+                    chainId: 1
+                    chainName: "ETH"
+                    protocol: "aave"
+                    message: "No asset found with this contract address and chain"
+        '400':
+          description: Bad request - invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_chain_id:
+                  summary: Invalid chain ID
+                  value:
+                    error: "Invalid chainId format - must be a number"
+                unsupported_chain_id:
+                  summary: Unsupported chain ID
+                  value:
+                    error: "Unsupported chain ID: 999. Supported chains: 1, 42161, 56"
+                invalid_address:
+                  summary: Invalid contract address
+                  value:
+                    error: "Invalid contract address format"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /steps/bulk:
+    post:
+      tags:
+        - Steps
+      summary: Bulk create steps
+      description: Create multiple steps for an asset in a single request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assetId:
+                  type: string
+                  example: 684a8cf6db44b98888f22f5f
+                steps:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CreateStepRequest'
+              required:
+                - assetId
+                - steps
+      responses:
+        '201':
+          description: Steps created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "3 steps created successfully"
+                  steps:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Step'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /steps/reorder/{assetId}:
+    post:
+      tags:
+        - Steps
+      summary: Reorder steps for an asset
+      description: Update the order of steps for a specific asset
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          description: Asset ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stepOrders:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      stepId:
+                        type: string
+                        example: 684fd1b13cb7079a7c6272be
+                      newOrder:
+                        type: integer
+                        example: 2
+                    required:
+                      - stepId
+                      - newOrder
+              required:
+                - stepOrders
+      responses:
+        '200':
+          description: Steps reordered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Steps reordered successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Chains API
+  /chains:
+    get:
+      tags:
+        - Chains
+      summary: Get all chains
+      description: Retrieve all blockchain networks with optional filtering
+      parameters:
+        - name: enabled
+          in: query
+          description: Filter by enabled status
+          schema:
+            type: boolean
+        - name: testnet
+          in: query
+          description: Filter by testnet status
+          schema:
+            type: boolean
+        - name: includeDisabled
+          in: query
+          description: Include disabled chains in results
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chains:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Chain'
+                  count:
+                    type: integer
+                    example: 3
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Chains
+      summary: Create a new chain
+      description: Create a new blockchain network configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChainRequest'
+      responses:
+        '201':
+          description: Chain created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Chain created successfully
+                  chain:
+                    $ref: '#/components/schemas/Chain'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /chains/{id}:
+    get:
+      tags:
+        - Chains
+      summary: Get chain by ID
+      description: Retrieve a specific chain by its ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Chain ID
+          schema:
+            type: string
+            example: 684a8cf6db44b98888f22f5f
+        - name: includeDisabled
+          in: query
+          description: Include disabled chains in results
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chain:
+                    $ref: '#/components/schemas/Chain'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Chains
+      summary: Update chain
+      description: Update an existing chain
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Chain ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateChainRequest'
+      responses:
+        '200':
+          description: Chain updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Chain updated successfully
+                  chain:
+                    $ref: '#/components/schemas/Chain'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Chains
+      summary: Delete chain
+      description: Delete a chain by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Chain ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Chain deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Chain deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /chains/chainId/{chainId}:
+    get:
+      tags:
+        - Chains
+      summary: Get chain by chain ID
+      description: Retrieve a chain by its chainId (e.g., 1 for Ethereum, 56 for BSC)
+      parameters:
+        - name: chainId
+          in: path
+          required: true
+          description: Chain ID number
+          schema:
+            type: integer
+            example: 1
+        - name: includeDisabled
+          in: query
+          description: Include disabled chains in results
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chain:
+                    $ref: '#/components/schemas/Chain'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /chains/bulk:
+    post:
+      tags:
+        - Chains
+      summary: Bulk create chains
+      description: Create multiple chains in a single request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                chains:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CreateChainRequest'
+              required:
+                - chains
+      responses:
+        '201':
+          description: Chains created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "3 chains created successfully"
+                  chains:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Chain'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Protocols API
+  /protocols:
+    get:
+      tags:
+        - Protocols
+      summary: Get all protocols
+      description: Retrieve all DeFi protocols with optional filtering
+      parameters:
+        - name: enabled
+          in: query
+          description: Filter by enabled status
+          schema:
+            type: boolean
+        - name: category
+          in: query
+          description: Filter by protocol category
+          schema:
+            type: string
+            example: Lending
+        - name: includeDisabled
+          in: query
+          description: Include disabled protocols in results
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  protocols:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Protocol'
+                  count:
+                    type: integer
+                    example: 5
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Protocols
+      summary: Create a new protocol
+      description: Create a new DeFi protocol configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProtocolRequest'
+      responses:
+        '201':
+          description: Protocol created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Protocol created successfully
+                  protocol:
+                    $ref: '#/components/schemas/Protocol'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /protocols/{id}:
+    get:
+      tags:
+        - Protocols
+      summary: Get protocol by ID
+      description: Retrieve a specific protocol by its ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Protocol ID
+          schema:
+            type: string
+            example: 684a8cf6db44b98888f22f5f
+        - name: includeDisabled
+          in: query
+          description: Include disabled protocols in results
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  protocol:
+                    $ref: '#/components/schemas/Protocol'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Protocols
+      summary: Update protocol
+      description: Update an existing protocol
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Protocol ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProtocolRequest'
+      responses:
+        '200':
+          description: Protocol updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Protocol updated successfully
+                  protocol:
+                    $ref: '#/components/schemas/Protocol'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Protocols
+      summary: Delete protocol
+      description: Delete a protocol by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Protocol ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Protocol deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Protocol deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /protocols/name/{name}:
+    get:
+      tags:
+        - Protocols
+      summary: Get protocol by name
+      description: Retrieve a protocol by its name (case-insensitive)
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: Protocol name
+          schema:
+            type: string
+            example: Aave
+        - name: includeDisabled
+          in: query
+          description: Include disabled protocols in results
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  protocol:
+                    $ref: '#/components/schemas/Protocol'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /protocols/bulk:
+    post:
+      tags:
+        - Protocols
+      summary: Bulk create protocols
+      description: Create multiple protocols in a single request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                protocols:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CreateProtocolRequest'
+              required:
+                - protocols
+      responses:
+        '201':
+          description: Protocols created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "5 protocols created successfully"
+                  protocols:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Protocol'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # APY Data API
+  /apy:
+    get:
+      tags:
+        - APY Data
+      summary: Get APY data
+      description: Retrieve current APY data for all supported tokens across different protocols
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  description: Chain ID as key
+                  additionalProperties:
+                    type: object
+                    description: Token address as key
+                    properties:
+                      compound:
+                        type: number
+                        nullable: true
+                        example: 4.25
+                      aave:
+                        type: number
+                        nullable: true
+                        example: 3.87
+                      radiant:
+                        type: number
+                        nullable: true
+                        example: 5.12
+                      venus:
+                        type: number
+                        nullable: true
+                        example: 6.33
+              example:
+                "1":
+                  "0xdAC17F958D2ee523a2206206994597C13D831ec7":
+                    compound: 4.25
+                    aave: 3.87
+                    radiant: null
+                    venus: null
+                "56":
+                  "0x55d398326f99059ff775485246999027b3197955":
+                    compound: null
+                    aave: null
+                    radiant: 2.15
+                    venus: 6.33
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # User Details API
+  /user-details/{walletAddress}:
+    get:
+      tags:
+        - User Details
+      summary: Get user transaction details
+      description: Retrieve transaction history and details for a specific wallet address
+      parameters:
+        - name: walletAddress
+          in: path
+          required: true
+          description: Wallet address (case-insensitive)
+          schema:
+            type: string
+            example: "0x742d35Cc6639C0532fE47bD00E08C7D7c4B0d62f"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                description: User transaction data (structure varies based on implementation)
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    Asset:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 684a8cf6db44b98888f22f5f
+        token:
+          type: string
+          example: USDT
+        chain:
+          type: string
+          example: ETH
+        address:
+          type: string
+          example: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+        icon:
+          type: string
+          example: "https://cdn.jsdelivr.net/gh/trustwallet/assets/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"
+        chainId:
+          type: integer
+          example: 1
+        decimals:
+          type: integer
+          example: 6
+        maxDecimalsShow:
+          type: integer
+          example: 2
+        usdPrice:
+          type: number
+          example: 1.0
+        yieldBearingToken:
+          type: boolean
+          example: false
+        enabled:
+          type: boolean
+          example: true
+        underlyingAsset:
+          type: string
+          nullable: true
+          example: null
+        withdrawContract:
+          type: string
+          nullable: true
+          example: null
+        protocol:
+          type: string
+          nullable: true
+          example: null
+        withdrawUri:
+          type: string
+          nullable: true
+          example: null
+        maturity:
+          type: string
+          nullable: true
+          example: null
+        lockYield:
+          $ref: '#/components/schemas/LockYield'
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-06-16T08:11:29.443Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-06-16T08:25:35.229Z"
+
+    CreateAssetRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          example: USDT
+        chain:
+          type: string
+          example: ETH
+        address:
+          type: string
+          example: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+        icon:
+          type: string
+          example: "https://cdn.jsdelivr.net/gh/trustwallet/assets/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"
+        chainId:
+          type: integer
+          example: 1
+        decimals:
+          type: integer
+          example: 6
+        maxDecimalsShow:
+          type: integer
+          example: 2
+        usdPrice:
+          type: number
+          example: 1.0
+        yieldBearingToken:
+          type: boolean
+          example: false
+        enabled:
+          type: boolean
+          example: true
+        underlyingAsset:
+          type: string
+          nullable: true
+        withdrawContract:
+          type: string
+          nullable: true
+        protocol:
+          type: string
+          nullable: true
+        withdrawUri:
+          type: string
+          nullable: true
+        maturity:
+          type: string
+          nullable: true
+        lockYield:
+          $ref: '#/components/schemas/LockYield'
+      required:
+        - token
+        - chain
+        - address
+        - icon
+        - chainId
+        - decimals
+        - maxDecimalsShow
+        - usdPrice
+        - yieldBearingToken
+
+    UpdateAssetRequest:
+      type: object
+      properties:
+        token:
+          type: string
+        chain:
+          type: string
+        address:
+          type: string
+        icon:
+          type: string
+        chainId:
+          type: integer
+        decimals:
+          type: integer
+        maxDecimalsShow:
+          type: integer
+        usdPrice:
+          type: number
+        yieldBearingToken:
+          type: boolean
+        enabled:
+          type: boolean
+        underlyingAsset:
+          type: string
+          nullable: true
+        withdrawContract:
+          type: string
+          nullable: true
+        protocol:
+          type: string
+          nullable: true
+        withdrawUri:
+          type: string
+          nullable: true
+        maturity:
+          type: string
+          nullable: true
+        lockYield:
+          $ref: '#/components/schemas/LockYield'
+
+    Chain:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 684a8cf6db44b98888f22f5f
+        chainId:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Ethereum
+        shortName:
+          type: string
+          example: ETH
+        image:
+          type: string
+          example: "https://cdn.jsdelivr.net/gh/trustwallet/assets/blockchains/ethereum/info/logo.png"
+        rpcUrl:
+          type: string
+          example: "https://eth.llamarpc.com"
+        explorerUrl:
+          type: string
+          example: "https://etherscan.io"
+        symbol:
+          type: string
+          example: ETH
+        decimals:
+          type: integer
+          example: 18
+        enabled:
+          type: boolean
+          example: true
+        testnet:
+          type: boolean
+          nullable: true
+          example: false
+        description:
+          type: string
+          nullable: true
+          example: "Ethereum mainnet"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-06-16T08:11:29.443Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-06-16T08:25:35.229Z"
+
+    CreateChainRequest:
+      type: object
+      properties:
+        chainId:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Ethereum
+        shortName:
+          type: string
+          example: ETH
+        image:
+          type: string
+          example: "https://cdn.jsdelivr.net/gh/trustwallet/assets/blockchains/ethereum/info/logo.png"
+        rpcUrl:
+          type: string
+          example: "https://eth.llamarpc.com"
+        explorerUrl:
+          type: string
+          example: "https://etherscan.io"
+        symbol:
+          type: string
+          example: ETH
+        decimals:
+          type: integer
+          example: 18
+        enabled:
+          type: boolean
+          example: true
+        testnet:
+          type: boolean
+          nullable: true
+          example: false
+        description:
+          type: string
+          nullable: true
+          example: "Ethereum mainnet"
+      required:
+        - chainId
+        - name
+        - shortName
+        - image
+        - rpcUrl
+        - explorerUrl
+        - symbol
+        - decimals
+
+    UpdateChainRequest:
+      type: object
+      properties:
+        chainId:
+          type: integer
+        name:
+          type: string
+        shortName:
+          type: string
+        image:
+          type: string
+        rpcUrl:
+          type: string
+        explorerUrl:
+          type: string
+        symbol:
+          type: string
+        decimals:
+          type: integer
+        enabled:
+          type: boolean
+        testnet:
+          type: boolean
+          nullable: true
+        description:
+          type: string
+          nullable: true
+
+    Protocol:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 684a8cf6db44b98888f22f5f
+        name:
+          type: string
+          example: Aave
+        displayName:
+          type: string
+          example: Aave
+        image:
+          type: string
+          example: "https://cdn.jsdelivr.net/gh/trustwallet/assets/blockchains/ethereum/assets/0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9/logo.png"
+        website:
+          type: string
+          nullable: true
+          example: "https://aave.com"
+        description:
+          type: string
+          nullable: true
+          example: "Open source and non-custodial liquidity protocol for earning interest on deposits and borrowing assets"
+        category:
+          type: string
+          nullable: true
+          example: "Lending"
+        enabled:
+          type: boolean
+          example: true
+        supportedChains:
+          type: array
+          items:
+            type: integer
+          nullable: true
+          example: [1, 137, 42161, 8453, 56]
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-06-16T08:11:29.443Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-06-16T08:25:35.229Z"
+
+    CreateProtocolRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Aave
+        displayName:
+          type: string
+          example: Aave
+        image:
+          type: string
+          example: "https://cdn.jsdelivr.net/gh/trustwallet/assets/blockchains/ethereum/assets/0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9/logo.png"
+        website:
+          type: string
+          nullable: true
+          example: "https://aave.com"
+        description:
+          type: string
+          nullable: true
+          example: "Open source and non-custodial liquidity protocol for earning interest on deposits and borrowing assets"
+        category:
+          type: string
+          nullable: true
+          example: "Lending"
+        enabled:
+          type: boolean
+          example: true
+        supportedChains:
+          type: array
+          items:
+            type: integer
+          nullable: true
+          example: [1, 137, 42161, 8453, 56]
+      required:
+        - name
+        - displayName
+        - image
+
+    UpdateProtocolRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        displayName:
+          type: string
+        image:
+          type: string
+        website:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        category:
+          type: string
+          nullable: true
+        enabled:
+          type: boolean
+        supportedChains:
+          type: array
+          items:
+            type: integer
+          nullable: true
+
+    LockYield:
+      type: object
+      nullable: true
+      properties:
+        expirationDate:
+          type: string
+          example: "2024-12-31"
+        protocol:
+          $ref: '#/components/schemas/LockYieldProtocol'
+
+    LockYieldProtocol:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Pendle"
+        swap:
+          type: boolean
+          example: true
+        ytAddress:
+          type: string
+          example: "0x..."
+        ptAddress:
+          type: string
+          example: "0x..."
+        swapAddress:
+          type: string
+          example: "0x..."
+        ytMarketAddress:
+          type: string
+          example: "0x..."
+        ytDecimals:
+          type: integer
+          example: 18
+        ptDecimals:
+          type: integer
+          example: 18
+
+    Step:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 684fd1b13cb7079a7c6272be
+        assetId:
+          type: string
+          example: 684a8cf6db44b98888f22f5f
+        order:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Approve USDT"
+        description:
+          type: string
+          example: "Approve USDT tokens for spending by the protocol contract"
+        chain:
+          type: string
+          example: ETH
+        protocol:
+          type: string
+          nullable: true
+          example: Aave
+        contractAddress:
+          type: string
+          nullable: true
+          example: "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2"
+        approvalFrom:
+          type: string
+          nullable: true
+          description: Token contract address (for approval steps)
+          example: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+        approvalTo:
+          type: string
+          nullable: true
+          description: Protocol contract address that receives the approval
+          example: "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2"
+        addressType:
+          type: object
+          nullable: true
+          description: Maps function parameter names to address types for address-type parameters
+          additionalProperties:
+            type: string
+            enum: [user, asset, underlying, contract, protocol, custom]
+          example:
+            spender: "protocol"
+            to: "user"
+        functionConfig:
+          $ref: '#/components/schemas/FunctionConfig'
+        enabled:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-06-16T08:11:29.443Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-06-16T08:25:35.229Z"
+
+    CreateStepRequest:
+      type: object
+      properties:
+        assetId:
+          type: string
+          example: 684a8cf6db44b98888f22f5f
+        order:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Approve USDT"
+        description:
+          type: string
+          example: "Approve USDT tokens for spending by the protocol contract"
+        chain:
+          type: string
+          example: ETH
+        protocol:
+          type: string
+          nullable: true
+          example: Aave
+        contractAddress:
+          type: string
+          nullable: true
+          example: "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2"
+        approvalFrom:
+          type: string
+          nullable: true
+          description: Token contract address (for approval steps - required when functionConfig.name is 'approve')
+          example: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+        approvalTo:
+          type: string
+          nullable: true
+          description: Protocol contract address that receives the approval (required when functionConfig.name is 'approve')
+          example: "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2"
+        addressType:
+          type: object
+          nullable: true
+          description: |
+            Maps function parameter names to address types for address-type parameters.
+            Available types:
+            - user: User's wallet address
+            - asset: Current asset's contract address
+            - underlying: Underlying asset's contract address
+            - contract: Step's contract address
+            - protocol: Protocol-specific address
+            - custom: Custom address (will need to be specified elsewhere)
+          additionalProperties:
+            type: string
+            enum: [user, asset, underlying, contract, protocol, custom]
+          example:
+            spender: "protocol"
+            to: "user"
+        functionConfig:
+          $ref: '#/components/schemas/FunctionConfig'
+        enabled:
+          type: boolean
+          example: true
+      required:
+        - assetId
+        - order
+        - title
+        - description
+        - chain
+        - functionConfig
+
+    UpdateStepRequest:
+      type: object
+      properties:
+        order:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        chain:
+          type: string
+        protocol:
+          type: string
+          nullable: true
+        contractAddress:
+          type: string
+          nullable: true
+        approvalFrom:
+          type: string
+          nullable: true
+          description: Token contract address (for approval steps)
+        approvalTo:
+          type: string
+          nullable: true
+          description: Protocol contract address that receives the approval
+        addressType:
+          type: object
+          nullable: true
+          description: Maps function parameter names to address types for address-type parameters
+          additionalProperties:
+            type: string
+            enum: [user, asset, underlying, contract, protocol, custom]
+          example:
+            spender: "protocol"
+            to: "user"
+        functionConfig:
+          $ref: '#/components/schemas/FunctionConfig'
+        enabled:
+          type: boolean
+
+    FunctionConfig:
+      type: object
+      properties:
+        inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/FunctionInput'
+        name:
+          type: string
+          example: approve
+        outputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/FunctionOutput'
+        stateMutability:
+          type: string
+          enum: [nonpayable, payable, view, pure]
+          example: nonpayable
+        type:
+          type: string
+          enum: [function, constructor, receive, fallback]
+          example: function
+      required:
+        - inputs
+        - name
+        - outputs
+        - stateMutability
+        - type
+
+    FunctionInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: spender
+        type:
+          type: string
+          example: address
+        indexed:
+          type: boolean
+          example: false
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/FunctionInput'
+          description: For struct types
+      required:
+        - name
+        - type
+
+    FunctionOutput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: ""
+        type:
+          type: string
+          example: bool
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/FunctionOutput'
+          description: For struct types
+      required:
+        - name
+        - type
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Validation failed"
+        details:
+          type: string
+          example: "Missing required field: token"
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Missing required fields"
+            details: "assetId, order, title, description, chain, functionConfig are required"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Asset not found"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Failed to fetch assets"
+            details: "Database connection error"
+
+tags:
+  - name: Assets
+    description: Operations related to crypto assets
+  - name: Steps
+    description: Operations related to yield generation steps
+  - name: Chains
+    description: Operations related to blockchain network configurations
+  - name: Protocols
+    description: Operations related to DeFi protocol configurations
+  - name: APY Data
+    description: Operations related to APY data retrieval
+  - name: User Details
+    description: Operations related to user transaction data 

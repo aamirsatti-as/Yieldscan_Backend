@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YieldScan - Chain Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+        
+        .loading-spinner {
+            border: 1px solid #f1f5f9;
+            border-top: 1px solid #6366f1;
+            border-radius: 50%;
+            width: 1rem;
+            height: 1rem;
+            animation: spin 1s linear infinite;
+        }
+        
+        h2 {
+            font-size: 1.5rem !important;
+            line-height: 1.4 !important;
+            margin-bottom: 0.75rem !important;
+        }
+        
+        .detail-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .detail-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        
+        .detail-value {
+            font-size: 0.875rem;
+            color: #111827;
+            margin-top: 0.25rem;
+        }
+        
+        .chain-image {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .enabled {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .disabled {
+            background-color: #fef2f2;
+            color: #991b1b;
+        }
+        
+        .mainnet {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .testnet {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="mobile-title">YieldScan</div>
+        <div></div>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" class="mobile-overlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <a href="/backoffice/assets" class="sidebar-logo">
+                <div class="logo-icon">YS</div>
+                <div class="logo-text">YieldScan</div>
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="/backoffice/assets" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="nav-text">Assets</div>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="/backoffice/chains" class="nav-link active">
+                    <div class="nav-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <div class="nav-text">Chains</div>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="/backoffice/protocols" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="nav-text">Protocols</div>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="nav-text">Analytics</div>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="nav-text">Portfolio</div>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="nav-text">Settings</div>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Loading State -->
+        <div id="loadingState" class="flex items-center justify-center py-12">
+            <div class="loading-spinner mr-2"></div>
+            <span class="text-gray-600">Loading chain...</span>
+        </div>
+
+        <!-- Chain Not Found -->
+        <div id="chainNotFound" class="hidden text-center py-12">
+            <i class="fas fa-exclamation-triangle text-gray-400 text-4xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Chain not found</h3>
+            <p class="text-gray-500 mb-4">The chain you're looking for doesn't exist or has been removed.</p>
+            <a href="/backoffice/chains" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-indigo-700">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Chains
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <main id="mainContent" class="hidden max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- Chain Header -->
+            <div id="chainHeader" class="px-4 py-6 sm:px-0">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <img id="chainIcon" class="chain-image mr-4" src="" alt="">
+                        <div>
+                            <h2 id="chainTitle" class="text-2xl font-bold text-gray-900"></h2>
+                            <p id="chainSubtitle" class="text-sm text-gray-500"></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span id="chainStatus" class="status-badge"></span>
+                        <span id="chainType" class="status-badge"></span>
+                        <a href="/backoffice/chains" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Back to Chains
+                        </a>
+                        <button onclick="window.chainDetailManager.editChain()" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-edit mr-2"></i>
+                            Edit Chain
+                        </button>
+                        <button onclick="window.chainDetailManager.deleteChain()" class="inline-flex items-center px-3 py-2 border border-red-300 text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50">
+                            <i class="fas fa-trash mr-2"></i>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chain Details -->
+            <div class="px-4 py-4 sm:px-0">
+                <div class="detail-card p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Chain Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div>
+                            <div class="detail-label">Chain ID</div>
+                            <div id="chainId" class="detail-value font-mono"></div>
+                        </div>
+                        <div>
+                            <div class="detail-label">Chain Name</div>
+                            <div id="chainName" class="detail-value"></div>
+                        </div>
+                        <div>
+                            <div class="detail-label">Short Name</div>
+                            <div id="chainShortName" class="detail-value"></div>
+                        </div>
+                        <div>
+                            <div class="detail-label">Symbol</div>
+                            <div id="chainSymbol" class="detail-value"></div>
+                        </div>
+                        <div>
+                            <div class="detail-label">Decimals</div>
+                            <div id="chainDecimals" class="detail-value"></div>
+                        </div>
+                        <div>
+                            <div class="detail-label">Network Type</div>
+                            <div id="chainNetworkType" class="detail-value"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- URLs and Configuration -->
+            <div class="px-4 py-4 sm:px-0">
+                <div class="detail-card p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Network Configuration</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <div class="detail-label">RPC URL</div>
+                            <div id="chainRpcUrl" class="detail-value font-mono break-all"></div>
+                        </div>
+                        <div>
+                            <div class="detail-label">Explorer URL</div>
+                            <div id="chainExplorerUrl" class="detail-value break-all">
+                                <a id="explorerLink" href="" target="_blank" class="text-blue-600 hover:text-blue-800 underline"></a>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="detail-label">Chain Image</div>
+                            <div id="chainImageUrl" class="detail-value break-all">
+                                <a id="imageLink" href="" target="_blank" class="text-blue-600 hover:text-blue-800 underline"></a>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="detail-label">Status</div>
+                            <div id="chainEnabledStatus" class="detail-value"></div>
+                        </div>
+                    </div>
+                    <div id="chainDescriptionSection" class="mt-6 hidden">
+                        <div class="detail-label">Description</div>
+                        <div id="chainDescription" class="detail-value mt-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metadata -->
+            <div class="px-4 py-4 sm:px-0">
+                <div class="detail-card p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Metadata</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <div class="detail-label">Created At</div>
+                            <div id="chainCreatedAt" class="detail-value"></div>
+                        </div>
+                        <div>
+                            <div class="detail-label">Last Updated</div>
+                            <div id="chainUpdatedAt" class="detail-value"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Chain Modal -->
+    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50 transition-all duration-300 opacity-0">
+        <div class="relative top-4 mx-auto p-6 border-0 w-[98vw] max-w-4xl shadow-2xl rounded-2xl bg-white max-h-[96vh] overflow-hidden flex flex-col scale-95 translate-y-4 transition-all duration-200">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-6 border-b border-gray-100">
+                <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-edit text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Edit Chain</h3>
+                        <p class="text-sm text-gray-500 mt-1">Update chain information and configuration</p>
+                    </div>
+                </div>
+                <button onclick="window.chainDetailManager.hideEditModal()" class="p-2 hover:bg-gray-100 rounded-xl transition-colors duration-200 group">
+                    <i class="fas fa-times text-gray-400 group-hover:text-gray-600 text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-y-auto py-6">
+                <form id="editChainForm">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Chain ID *</label>
+                            <input type="number" id="editChainId" name="chainId" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Chain Name *</label>
+                            <input type="text" id="editName" name="name" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Short Name *</label>
+                            <input type="text" id="editShortName" name="shortName" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Symbol *</label>
+                            <input type="text" id="editSymbol" name="symbol" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Decimals *</label>
+                            <input type="number" id="editDecimals" name="decimals" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Image URL *</label>
+                            <input type="url" id="editImage" name="image" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">RPC URL *</label>
+                            <input type="url" id="editRpcUrl" name="rpcUrl" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Explorer URL *</label>
+                            <input type="url" id="editExplorerUrl" name="explorerUrl" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Network Type</label>
+                            <select id="editTestnet" name="testnet" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                                <option value="false">Mainnet</option>
+                                <option value="true">Testnet</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <select id="editEnabled" name="enabled" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                                <option value="true">Enabled</option>
+                                <option value="false">Disabled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <textarea id="editDescription" name="description" rows="3" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-100">
+                <button onclick="window.chainDetailManager.hideEditModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button onclick="window.chainDetailManager.saveChain()" class="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-indigo-700">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/ui-service.js"></script>
+    <script src="/js/chain-detail-manager.js"></script>
+    <script>
+        // Initialize global objects
+        window.apiService = new ApiService();
+        window.uiService = new UiService();
+        window.chainDetailManager = new ChainDetailManager();
+    </script>
+    
+    <script>
+        // Sidebar functionality
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const toggleBtn = document.querySelector('.sidebar-toggle i');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                toggleBtn.className = 'fas fa-chevron-right';
+            } else {
+                toggleBtn.className = 'fas fa-chevron-left';
+            }
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            
+            sidebar.classList.add('mobile-open');
+            overlay.classList.add('active');
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+        }
+
+        // Get chain ID from URL
+        const urlParts = window.location.pathname.split('/');
+        const chainId = urlParts[urlParts.length - 1];
+        
+        console.log('Page loaded with chain ID:', chainId);
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', async function() {
+            await window.chainDetailManager.initialize(chainId);
+        });
+    </script>
+</body>
+</html> 

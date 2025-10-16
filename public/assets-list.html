@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YieldScan - Assets Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Enhanced compact styles */
+        body {
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        .loading-spinner {
+            border: 1px solid #f1f5f9;
+            border-top: 1px solid #6366f1;
+            border-radius: 50%;
+            width: 1rem;
+            height: 1rem;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Compact headers */
+        h2 {
+            font-size: 1.25rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        /* Compact buttons */
+        button {
+            padding: 0.25rem 0.625rem !important;
+            font-size: 0.75rem !important;
+            border-radius: 0.25rem !important;
+        }
+
+        button i {
+            font-size: 0.625rem !important;
+        }
+
+        /* Compact filters */
+        .grid.grid-cols-1.md\\:grid-cols-5 {
+            gap: 0.75rem !important;
+        }
+
+        .grid label {
+            font-size: 0.6875rem !important;
+            margin-bottom: 0.25rem !important;
+            font-weight: 600 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        input,
+        select {
+            padding: 0.25rem 0.5rem !important;
+            font-size: 0.75rem !important;
+            border-radius: 0.25rem !important;
+            height: 2rem !important;
+        }
+
+        /* Compact table */
+        table th {
+            padding: 0.375rem 0.5rem !important;
+            font-size: 0.625rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            line-height: 1.2;
+        }
+
+        table td {
+            padding: 0.375rem 0.5rem !important;
+            font-size: 0.75rem !important;
+            line-height: 1.3;
+            vertical-align: middle;
+        }
+
+        /* Enhanced asset rows */
+        .asset-row {
+            cursor: pointer;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0.25rem;
+        }
+
+        .asset-row:hover {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            transform: translateY(-0.5px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .asset-row:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Enhanced action buttons */
+        .action-button {
+            transition: all 0.15s ease;
+            padding: 0.125rem 0.25rem !important;
+            font-size: 0.625rem !important;
+            border-radius: 0.25rem !important;
+        }
+
+        .action-button:hover {
+            transform: scale(1.02);
+        }
+
+        /* Enhanced section headers */
+        .section-header {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-top: 1px solid #e2e8f0;
+            padding: 0.375rem 0.5rem !important;
+            font-size: 0.625rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.075em;
+            color: #6b7280;
+        }
+
+        .section-header:first-child {
+            border-top: none;
+        }
+
+        /* Compact card styling */
+        .bg-white.rounded-lg.shadow {
+            border-radius: 0.375rem !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+            border: 1px solid #f3f4f6;
+        }
+
+        .bg-white.shadow.rounded-lg {
+            border-radius: 0.375rem !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+            border: 1px solid #f3f4f6;
+        }
+
+        /* Enhanced spacing */
+        .p-4 {
+            padding: 0.75rem !important;
+        }
+
+        .p-8 {
+            padding: 1.5rem !important;
+        }
+
+        .px-6.py-3 {
+            padding: 0.375rem 0.5rem !important;
+        }
+
+        .px-6.py-4 {
+            padding: 0.5rem 0.75rem !important;
+        }
+
+        /* Enhanced loading state */
+        #loadingState {
+            padding: 1rem !important;
+        }
+
+        #loadingState span {
+            font-size: 0.75rem !important;
+            color: #6b7280;
+        }
+
+        /* Enhanced visual feedback */
+        .asset-info {
+            transition: color 0.15s ease;
+        }
+
+        .asset-row:hover .asset-info {
+            color: #6366f1;
+        }
+
+        /* Enhanced yield bearing and standard sections */
+        .yield-bearing-section .asset-row {
+            border-left: 2px solid #10b981;
+            border-radius: 0 0.25rem 0.25rem 0;
+        }
+
+        .standard-section .asset-row {
+            border-left: 2px solid #6b7280;
+            border-radius: 0 0.25rem 0.25rem 0;
+        }
+
+        /* Enhanced disabled styling */
+        .asset-row.disabled {
+            opacity: 0.6;
+            background: linear-gradient(135deg, #fafafa, #f5f5f5);
+        }
+
+        .asset-row.disabled:hover {
+            background: linear-gradient(135deg, #f5f5f5, #f0f0f0);
+            transform: none;
+        }
+
+        /* Compact responsive adjustments */
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.125rem !important;
+            }
+
+            .grid.grid-cols-1.md\\:grid-cols-5 {
+                grid-template-columns: 1fr !important;
+                gap: 0.5rem !important;
+            }
+
+            table th,
+            table td {
+                padding: 0.25rem 0.375rem !important;
+                font-size: 0.625rem !important;
+            }
+
+            button {
+                padding: 0.1875rem 0.5rem !important;
+                font-size: 0.625rem !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="mobile-title">YieldScan</div>
+        <div></div>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" class="mobile-overlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <a href="/backoffice/assets" class="sidebar-logo">
+                <div class="logo-icon">YS</div>
+                <div class="logo-text">YieldScan</div>
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="/backoffice/assets" class="nav-link active">
+                    <div class="nav-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="nav-text">Assets</div>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="/backoffice/chains" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <div class="nav-text">Chains</div>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="/backoffice/protocols" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="nav-text">Protocols</div>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="/backoffice/vaults" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-vault"></i>
+                    </div>
+                    <div class="nav-text">Vaults</div>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="nav-text">Analytics</div>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="nav-text">Portfolio</div>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="nav-text">Settings</div>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- Header -->
+            <div class="px-4 py-6 sm:px-0">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-900">Assets</h2>
+                    <button onclick="showCreateModal()"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <i class="fas fa-plus mr-2"></i>
+                        Add Asset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="px-4 py-4 sm:px-0">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                            <input type="text" id="searchInput" placeholder="Search assets..."
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Chain</label>
+                            <select id="chainFilter"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                                <option value="">All Chains</option>
+                                <!-- Chain options will be populated dynamically -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Protocol</label>
+                            <select id="protocolFilter"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                                <option value="">All Protocols</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Yield Bearing</label>
+                            <select id="yieldFilter"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                                <option value="">All</option>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select id="enabledFilter"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                                <option value="">All</option>
+                                <option value="true">Enabled</option>
+                                <option value="false">Disabled</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assets Table -->
+            <div class="px-4 sm:px-0">
+                <div class="bg-white shadow rounded-lg overflow-hidden">
+                    <!-- Loading State -->
+                    <div id="loadingState" class="flex items-center justify-center p-8">
+                        <div class="loading-spinner mr-2"></div>
+                        <span class="text-gray-600">Loading assets...</span>
+                    </div>
+
+                    <!-- Table -->
+                    <div id="assetsTable" class="hidden">
+                        <table class="assets-table min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Asset</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Chain</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Protocol</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Price</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Yield Bearing</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="assetsTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Assets will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="emptyState" class="hidden text-center py-12">
+                        <i class="fas fa-coins text-gray-400 text-4xl mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No assets found</h3>
+                        <p class="text-gray-500">Get started by adding your first asset.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Asset Modal -->
+    <div id="create-modal"
+        class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50 transition-all duration-300 opacity-0">
+        <div
+            class="relative top-4 mx-auto p-6 border-0 w-[98vw] max-w-5xl shadow-2xl rounded-2xl bg-white max-h-[96vh] overflow-hidden flex flex-col scale-95 translate-y-4 transition-all duration-200">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-6 border-b border-gray-100">
+                <div class="flex items-center space-x-3">
+                    <div
+                        class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-plus text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Create New Asset</h3>
+                        <p class="text-sm text-gray-500 mt-1">Add a new cryptocurrency asset to your portfolio</p>
+                    </div>
+                </div>
+                <button onclick="hideCreateModal()"
+                    class="p-2 hover:bg-gray-100 rounded-xl transition-colors duration-200 group">
+                    <i class="fas fa-times text-gray-400 group-hover:text-gray-600 text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Progress Indicator -->
+            <div class="py-4 border-b border-gray-100">
+                <div class="flex items-center justify-center space-x-8">
+                    <div class="flex items-center text-indigo-600">
+                        <div
+                            class="w-8 h-8 bg-indigo-100 border-2 border-indigo-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-info text-sm"></i>
+                        </div>
+                        <span class="ml-2 text-sm font-medium">Basic Info</span>
+                    </div>
+                    <div class="w-16 h-px bg-gray-200"></div>
+                    <div class="flex items-center text-gray-400">
+                        <div
+                            class="w-8 h-8 bg-gray-100 border-2 border-gray-300 rounded-full flex items-center justify-center">
+                            <i class="fas fa-cog text-sm"></i>
+                        </div>
+                        <span class="ml-2 text-sm font-medium">Configuration</span>
+                    </div>
+                    <div class="w-16 h-px bg-gray-200"></div>
+                    <div class="flex items-center text-gray-400">
+                        <div
+                            class="w-8 h-8 bg-gray-100 border-2 border-gray-300 rounded-full flex items-center justify-center">
+                            <i class="fas fa-check text-sm"></i>
+                        </div>
+                        <span class="ml-2 text-sm font-medium">Complete</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-y-auto py-6">
+                <form id="create-asset-form" class="space-y-8">
+                    <!-- Basic Information Section -->
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                        <div class="flex items-center mb-6">
+                            <div
+                                class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-info text-white text-sm"></i>
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-900">Basic Information</h4>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-coins text-blue-500 mr-2"></i>
+                                    Token Symbol *
+                                </label>
+                                <input type="text" id="token" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="e.g., USDC, WETH">
+                                <p class="text-xs text-gray-500">The token symbol (ticker)</p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-network-wired text-blue-500 mr-2"></i>
+                                    Blockchain *
+                                </label>
+                                <select id="chain" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white">
+                                    <option value="">Select Blockchain</option>
+                                    <!-- Chain options will be populated dynamically -->
+                                </select>
+                                <p class="text-xs text-gray-500">The blockchain network</p>
+                            </div>
+                            <!-- 
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-hashtag text-blue-500 mr-2"></i>
+                                    Chain ID *
+                                </label>
+                                <input type="number" id="chainId" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="e.g., 1, 42161, 56">
+                                <p class="text-xs text-gray-500">Network chain identifier</p>
+                            </div> -->
+
+                            <div class="md:col-span-2 lg:col-span-3 space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-file-contract text-blue-500 mr-2"></i>
+                                    Contract Address *
+                                </label>
+                                <input type="text" id="address" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white font-mono"
+                                    placeholder="0x...">
+                                <p class="text-xs text-gray-500">The smart contract address for this token</p>
+                            </div>
+
+                            <div class="md:col-span-2 lg:col-span-3 space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-image text-blue-500 mr-2"></i>
+                                    Icon URL *
+                                </label>
+                                <input type="url" id="icon" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="https://...">
+                                <p class="text-xs text-gray-500">URL to the token's icon/logo image</p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <!-- <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-sitemap text-blue-500 mr-2"></i>
+                                    Protocol
+                                </label>
+                                <input type="text" id="protocol"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="e.g., Aave, Compound">
+                                <p class="text-xs text-gray-500">Associated DeFi protocol</p> -->
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-network-wired text-blue-500 mr-2"></i>
+                                    Protocol
+                                </label>
+                                <select id="protocol" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white">
+                                    <option value="">Select Protocol</option>
+                                    <!-- Chain options will be populated dynamically -->
+                                </select>
+                                <p class="text-xs text-gray-500">Associated DeFi protocol</p>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Technical Configuration Section -->
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+                        <div class="flex items-center mb-6">
+                            <div
+                                class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-cogs text-white text-sm"></i>
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-900">Technical Configuration</h4>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-calculator text-purple-500 mr-2"></i>
+                                    Decimals *
+                                </label>
+                                <input type="number" id="decimals" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="18">
+                                <p class="text-xs text-gray-500">Token decimal precision</p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-eye text-purple-500 mr-2"></i>
+                                    Display Decimals *
+                                </label>
+                                <input type="number" id="maxDecimalsShow" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="6">
+                                <p class="text-xs text-gray-500">Max decimals to show in UI</p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-dollar-sign text-purple-500 mr-2"></i>
+                                    USD Price *
+                                </label>
+                                <input type="number" step="0.01" id="usdPrice" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="1.00">
+                                <p class="text-xs text-gray-500">Current USD price</p>
+                            </div>
+
+                            <div class="md:col-span-2 lg:col-span-3 space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-layer-group text-purple-500 mr-2"></i>
+                                    Underlying Asset
+                                </label>
+                                <input type="text" id="underlyingAsset"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 transition-colors duration-200 bg-white font-mono"
+                                    placeholder="0x... (optional)">
+                                <p class="text-xs text-gray-500">The underlying asset contract address if this is a
+                                    wrapped/derivative token</p>
+                            </div>
+
+                            <div class="md:col-span-2 lg:col-span-3 space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-arrow-down text-purple-500 mr-2"></i>
+                                    Withdraw Contract
+                                </label>
+                                <input type="text" id="withdrawContract"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 transition-colors duration-200 bg-white font-mono"
+                                    placeholder="0x... (optional)">
+                                <p class="text-xs text-gray-500">The contract address used for withdrawing this asset
+                                </p>
+                            </div>
+
+                            <div class="md:col-span-2 lg:col-span-3 space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-link text-purple-500 mr-2"></i>
+                                    Withdraw URI
+                                </label>
+                                <input type="url" id="withdrawUri"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="https://... (optional)">
+                                <p class="text-xs text-gray-500">URI or URL for withdrawal information or interface</p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-calendar text-purple-500 mr-2"></i>
+                                    Maturity
+                                </label>
+                                <input type="text" id="maturity"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="e.g., 2024-12-31 (optional)">
+                                <p class="text-xs text-gray-500">Maturity date for time-locked assets</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Asset Properties Section -->
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                        <div class="flex items-center mb-6">
+                            <div
+                                class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-toggle-on text-white text-sm"></i>
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-900">Asset Properties</h4>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-white rounded-xl p-4 border border-green-200">
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" id="yieldBearingToken"
+                                        class="w-5 h-5 text-green-600 focus:ring-green-500 border-2 border-gray-300 rounded">
+                                    <div>
+                                        <label for="yieldBearingToken"
+                                            class="block text-sm font-semibold text-gray-900">Yield-bearing
+                                            Token</label>
+                                        <p class="text-xs text-gray-500">Generates yield over time</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-4 border border-green-200">
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" id="enabled" checked
+                                        class="w-5 h-5 text-green-600 focus:ring-green-500 border-2 border-gray-300 rounded">
+                                    <div>
+                                        <label for="enabled"
+                                            class="block text-sm font-semibold text-gray-900">Enabled</label>
+                                        <p class="text-xs text-gray-500">Asset is active and available</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-4 border border-green-200">
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" id="hasLockYield"
+                                        class="w-5 h-5 text-green-600 focus:ring-green-500 border-2 border-gray-300 rounded">
+                                    <div>
+                                        <label for="hasLockYield" class="block text-sm font-semibold text-gray-900">Has
+                                            Lock Yield</label>
+                                        <p class="text-xs text-gray-500">Supports yield locking features</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lock Yield Configuration Section -->
+                    <div id="lockYieldSection"
+                        class="hidden bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-100">
+                        <div class="flex items-center mb-6">
+                            <div
+                                class="w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-lock text-white text-sm"></i>
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-900">Lock Yield Configuration</h4>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="md:col-span-2 lg:col-span-3 space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-calendar-alt text-yellow-500 mr-2"></i>
+                                    Expiration Date
+                                </label>
+                                <input type="date" id="lockYieldExpirationDate"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white">
+                            </div>
+
+                            <div class="md:col-span-2 lg:col-span-3 space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-building text-yellow-500 mr-2"></i>
+                                    Protocol Name
+                                </label>
+                                <input type="text" id="lockYieldProtocolName"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="e.g., Pendle">
+                            </div>
+
+                            <div class="md:col-span-2 lg:col-span-3">
+                                <div class="bg-white rounded-xl p-4 border border-yellow-200">
+                                    <div class="flex items-center space-x-3">
+                                        <input type="checkbox" id="lockYieldSwap"
+                                            class="w-5 h-5 text-yellow-600 focus:ring-yellow-500 border-2 border-gray-300 rounded">
+                                        <div>
+                                            <label for="lockYieldSwap"
+                                                class="block text-sm font-semibold text-gray-900">Swap Enabled</label>
+                                            <p class="text-xs text-gray-500">Enable swap functionality for this lock
+                                                yield</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">YT Address</label>
+                                <input type="text" id="lockYieldYtAddress"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white font-mono"
+                                    placeholder="0x...">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">PT Address</label>
+                                <input type="text" id="lockYieldPtAddress"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white font-mono"
+                                    placeholder="0x...">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">Swap Address</label>
+                                <input type="text" id="lockYieldSwapAddress"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white font-mono"
+                                    placeholder="0x...">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">YT Market Address</label>
+                                <input type="text" id="lockYieldYtMarketAddress"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white font-mono"
+                                    placeholder="0x...">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">YT Decimals</label>
+                                <input type="number" id="lockYieldYtDecimals"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="18">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">PT Decimals</label>
+                                <input type="number" id="lockYieldPtDecimals"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="18">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                <div class="text-sm text-gray-500">
+                    <span class="text-red-500">*</span> Required fields
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="hideCreateModal()"
+                        class="px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" form="create-asset-form"
+                        class="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <i class="fas fa-plus mr-2"></i>
+                        Create Asset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50"></div>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/assets-list-manager.js"></script>
+    <script>
+        // Sidebar functionality
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const toggleBtn = document.querySelector('.sidebar-toggle i');
+
+            sidebar.classList.toggle('sidebar-collapsed');
+
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                toggleBtn.className = 'fas fa-chevron-right';
+            } else {
+                toggleBtn.className = 'fas fa-chevron-left';
+            }
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+
+            sidebar.classList.add('mobile-open');
+            overlay.classList.add('active');
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', async function () {
+            await window.assetsListManager.initialize();
+        });
+    </script>
+</body>
+
+</html>

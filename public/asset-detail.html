@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YieldScan - Asset Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Enhanced compact styles for asset details */
+        body {
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        /* Compact headers and asset info */
+        h2 {
+            font-size: 1.25rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+
+        h3 {
+            font-size: 1rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        #assetIcon {
+            height: 2.5rem !important;
+            width: 2.5rem !important;
+            margin-right: 0.75rem !important;
+        }
+
+        #assetSubtitle {
+            font-size: 0.75rem !important;
+        }
+
+        /* Compact buttons */
+        button {
+            padding: 0.25rem 0.625rem !important;
+            font-size: 0.75rem !important;
+            border-radius: 0.25rem !important;
+            line-height: 1.2 !important;
+        }
+
+        button i {
+            font-size: 0.625rem !important;
+            margin-right: 0.375rem !important;
+        }
+
+        /* Enhanced tab styles */
+        .tab-button {
+            padding: 0.375rem 0.625rem !important;
+            font-size: 0.75rem !important;
+            font-weight: 500 !important;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .tab-button:hover {
+            border-color: #d1d5db;
+            color: #4b5563;
+            background: linear-gradient(to bottom, rgba(243, 244, 246, 0.5), transparent);
+        }
+
+        .tab-button.active {
+            border-color: #6366f1;
+            color: #6366f1;
+            background: linear-gradient(to bottom, rgba(99, 102, 241, 0.05), transparent);
+        }
+
+        .tab-button.active::before {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            border-radius: 1px;
+        }
+
+        /* Enhanced step card styles */
+        .step-card {
+            padding: 0.625rem !important;
+            border-radius: 0.375rem !important;
+            border: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #ffffff, #fafbff);
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .step-card:hover {
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+            border-color: #c7d2fe;
+            transform: translateY(-0.5px);
+        }
+
+        .step-order-badge {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+            font-size: 0.625rem !important;
+            font-weight: 700 !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: white;
+            box-shadow: 0 1px 3px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Enhanced function config section */
+        .function-config {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 0.25rem;
+            padding: 0.625rem;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-size: 0.625rem;
+            line-height: 1.3;
+            margin-top: 0.5rem;
+        }
+
+        /* Compact loading spinner */
+        .loading-spinner {
+            border: 1px solid #f1f5f9;
+            border-top: 1px solid #6366f1;
+            border-radius: 50%;
+            width: 1rem;
+            height: 1rem;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Enhanced protocol sections */
+        .protocol-section {
+            background: linear-gradient(135deg, #ffffff, #fafbff);
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            margin-bottom: 0.625rem;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .protocol-section:hover {
+            transform: translateY(-0.5px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+            border-color: #c7d2fe;
+        }
+
+        .protocol-steps .step-card {
+            border-left: 2px solid #6366f1;
+            background: linear-gradient(135deg, #f8fafc, #ffffff);
+        }
+
+        .protocol-steps .step-card:hover {
+            transform: translateX(2px) translateY(-0.5px);
+            box-shadow: 0 3px 8px rgba(99, 102, 241, 0.12);
+        }
+
+        /* Enhanced add protocol section */
+        .add-protocol-section {
+            transition: all 0.15s ease;
+            border-radius: 0.375rem !important;
+            padding: 0.75rem !important;
+        }
+
+        .add-protocol-section:hover {
+            border-color: #6366f1;
+            background: linear-gradient(135deg, #f8fafc, #ffffff);
+        }
+
+        /* Enhanced protocol tabs */
+        .protocol-tab {
+            transition: all 0.15s ease;
+            padding: 0.375rem 0.75rem !important;
+            font-size: 0.75rem !important;
+            border-radius: 0.25rem !important;
+        }
+
+        .protocol-tab:hover {
+            transform: translateY(-0.5px);
+        }
+
+        /* Enhanced protocol content header */
+        .protocol-content-header {
+            background: linear-gradient(135deg, #f8fafc, #ffffff);
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+        }
+
+        /* Compact card styling */
+        .bg-white.shadow.rounded-lg {
+            border-radius: 0.375rem !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+            border: 1px solid #f3f4f6;
+        }
+
+        /* Enhanced spacing */
+        .px-6.py-4 {
+            padding: 0.5rem 0.75rem !important;
+        }
+
+        .px-6.py-3 {
+            padding: 0.375rem 0.75rem !important;
+        }
+
+        .px-3.py-2 {
+            padding: 0.25rem 0.5rem !important;
+        }
+
+        /* Enhanced status badges */
+        #assetStatus {
+            padding: 0.125rem 0.5rem !important;
+            font-size: 0.625rem !important;
+            font-weight: 600 !important;
+            border-radius: 0.625rem !important;
+        }
+
+        /* Enhanced loading and error states */
+        #loadingState {
+            padding: 1rem !important;
+        }
+
+        #loadingState span {
+            font-size: 0.75rem !important;
+            color: #6b7280;
+        }
+
+        #assetNotFound {
+            padding: 1.5rem !important;
+        }
+
+        #assetNotFound i {
+            font-size: 2rem !important;
+            margin-bottom: 0.75rem !important;
+        }
+
+        #assetNotFound h3 {
+            font-size: 1rem !important;
+            margin-bottom: 0.375rem !important;
+        }
+
+        #assetNotFound p {
+            font-size: 0.75rem !important;
+            margin-bottom: 0.75rem !important;
+        }
+
+        /* Enhanced responsive design */
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.125rem !important;
+            }
+
+            #assetIcon {
+                height: 2rem !important;
+                width: 2rem !important;
+                margin-right: 0.5rem !important;
+            }
+
+            button {
+                padding: 0.1875rem 0.5rem !important;
+                font-size: 0.625rem !important;
+            }
+
+            .step-card {
+                padding: 0.5rem !important;
+            }
+
+            .protocol-section {
+                padding: 0.625rem !important;
+            }
+
+            .tab-button {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.625rem !important;
+            }
+        }
+
+        /* Enhanced visual hierarchy */
+        .border-b.border-gray-200 {
+            border-bottom: 1px solid #f3f4f6 !important;
+        }
+
+        .divide-y.divide-gray-200>* {
+            border-top: 1px solid #f9fafb !important;
+        }
+
+        /* Enhanced spacing for nav and content sections */
+        .space-x-8>*+* {
+            margin-left: 1rem !important;
+        }
+
+        .space-x-2>*+* {
+            margin-left: 0.375rem !important;
+        }
+
+        .-mb-px {
+            margin-bottom: -1px !important;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="mobile-title">YieldScan</div>
+        <div></div>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" class="mobile-overlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <a href="/backoffice/assets" class="sidebar-logo">
+                <div class="logo-icon">YS</div>
+                <div class="logo-text">YieldScan</div>
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="/backoffice/assets" class="nav-link active">
+                    <div class="nav-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="nav-text">Assets</div>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="/backoffice/chains" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <div class="nav-text">Chains</div>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="/backoffice/protocols" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="nav-text">Protocols</div>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="/backoffice/vaults" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-vault"></i>
+                    </div>
+                    <div class="nav-text">Vaults</div>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="nav-text">Analytics</div>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="nav-text">Portfolio</div>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="nav-text">Settings</div>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Loading State -->
+        <div id="loadingState" class="flex items-center justify-center py-12">
+            <div class="loading-spinner mr-2"></div>
+            <span class="text-gray-600">Loading asset...</span>
+        </div>
+
+        <!-- Asset Not Found -->
+        <div id="assetNotFound" class="hidden text-center py-12">
+            <i class="fas fa-exclamation-triangle text-gray-400 text-4xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Asset not found</h3>
+            <p class="text-gray-500 mb-4">The asset you're looking for doesn't exist or has been removed.</p>
+            <a href="/backoffice/assets"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-indigo-700">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Assets
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <main id="mainContent" class="hidden max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- Asset Header -->
+            <div id="assetHeader" class="px-4 py-6 sm:px-0">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <img id="assetIcon" class="h-12 w-12 rounded-full mr-4" src="" alt="">
+                        <div>
+                            <h2 id="assetTitle" class="text-2xl font-bold text-gray-900"></h2>
+                            <p id="assetSubtitle" class="text-sm text-gray-500"></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span id="assetStatus"
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"></span>
+                        <a href="/backoffice/assets"
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Back to Assets
+                        </a>
+                        <button onclick="window.assetDetailManager.editAsset()"
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-edit mr-2"></i>
+                            Edit Asset
+                        </button>
+                        <button onclick="window.assetDetailManager.deleteAsset()"
+                            class="inline-flex items-center px-3 py-2 border border-red-300 text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50">
+                            <i class="fas fa-trash mr-2"></i>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="px-4 sm:px-0">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-8">
+                        <button id="asset-details-tab" onclick="window.assetDetailManager.switchTab('details')"
+                            class="tab-button active border-indigo-500 text-indigo-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                            Asset Details
+                        </button>
+                        <button id="deposit-steps-tab" onclick="window.assetDetailManager.switchTab('steps')"
+                            class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                            Protocol Steps
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="px-4 py-6 sm:px-0">
+                <!-- Asset Details Tab -->
+                <div id="asset-details-content" class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Asset Information</h3>
+                    </div>
+                    <div id="assetDetailsContent" class="px-6 py-4">
+                        <!-- Asset details will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Deposit Steps Tab -->
+                <div id="deposit-steps-content" class="hidden bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">Protocol Steps</h3>
+                            <div class="flex space-x-2">
+                                <button onclick="window.assetDetailManager.debugCurrentState()"
+                                    class="inline-flex items-center px-3 py-2 border border-yellow-300 text-sm leading-4 font-medium rounded-md text-yellow-700 bg-yellow-50 hover:bg-yellow-100">
+                                    <i class="fas fa-bug mr-2"></i>
+                                    Debug State
+                                </button>
+                                <button onclick="window.assetDetailManager.showAddProtocolModal()"
+                                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-indigo-700">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    Add Protocol
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Protocol Tabs -->
+                    <div class="px-6 pt-4">
+                        <div class="border-b border-gray-200">
+                            <nav id="protocol-tabs" class="-mb-px flex space-x-8">
+                                <!-- Protocol tabs will be rendered here -->
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- Protocol Tab Content -->
+                    <div class="px-6 py-4">
+                        <div id="protocol-content">
+                            <!-- Protocol-specific content will be rendered here -->
+                        </div>
+
+                        <!-- Loading Steps State -->
+                        <div id="steps-loading" class="text-center py-8 hidden">
+                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
+                            <p class="mt-2 text-sm text-gray-500">Loading protocol steps...</p>
+                        </div>
+
+                        <!-- No Protocols State -->
+                        <div id="no-protocols-state" class="text-center py-12 hidden">
+                            <i class="fas fa-cube text-gray-400 text-4xl mb-4"></i>
+                            <h4 class="text-lg font-medium text-gray-900 mb-2">No protocols configured</h4>
+                            <p class="text-sm text-gray-500 mb-4">Create your first protocol to start adding steps</p>
+                            <button onclick="window.assetDetailManager.showAddProtocolModal()"
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-indigo-700">
+                                <i class="fas fa-plus mr-2"></i>
+                                Add Your First Protocol
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Asset Modal -->
+    <div id="edit-modal"
+        class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50 transition-all duration-300 opacity-0">
+        <div
+            class="relative top-4 mx-auto p-6 border-0 w-[98vw] max-w-5xl shadow-2xl rounded-2xl bg-white max-h-[96vh] overflow-hidden flex flex-col scale-95 translate-y-4 transition-all duration-200">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-6 border-b border-gray-100">
+                <div class="flex items-center space-x-3">
+                    <div
+                        class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-edit text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Edit Asset</h3>
+                        <p class="text-sm text-gray-500 mt-1">Update asset information and configuration</p>
+                    </div>
+                </div>
+                <button onclick="window.assetDetailManager.hideEditModal()"
+                    class="p-2 hover:bg-gray-100 rounded-xl transition-colors duration-200 group">
+                    <i class="fas fa-times text-gray-400 group-hover:text-gray-600 text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-y-auto py-6">
+                <form id="edit-asset-form" class="space-y-8">
+                    <!-- Basic Information Section -->
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                        <div class="flex items-center mb-6">
+                            <div
+                                class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-info text-white text-sm"></i>
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-900">Basic Information</h4>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-coins text-blue-500 mr-2"></i>
+                                    Token Symbol *
+                                </label>
+                                <input type="text" id="edit-token" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-network-wired text-blue-500 mr-2"></i>
+                                    Blockchain *
+                                </label>
+                                <select id="edit-chain" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white">
+                                    <option value="">Select Blockchain</option>
+                                    <!-- Chain options will be populated dynamically -->
+                                </select>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-hashtag text-blue-500 mr-2"></i>
+                                    Chain ID *
+                                </label>
+                                <input type="number" id="edit-chainId" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white">
+                            </div>
+
+                            <div class="md:col-span-2 lg:col-span-3 space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-file-contract text-blue-500 mr-2"></i>
+                                    Contract Address *
+                                </label>
+                                <input type="text" id="edit-address" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white font-mono">
+                            </div>
+
+                            <div class="md:col-span-2 lg:col-span-3 space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-image text-blue-500 mr-2"></i>
+                                    Icon URL *
+                                </label>
+                                <input type="url" id="edit-icon" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-sitemap text-blue-500 mr-2"></i>
+                                    Protocol
+                                </label>
+                                <input type="text" id="edit-protocol"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Technical Configuration Section -->
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+                        <div class="flex items-center mb-6">
+                            <div
+                                class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-cogs text-white text-sm"></i>
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-900">Technical Configuration</h4>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-calculator text-purple-500 mr-2"></i>
+                                    Decimals *
+                                </label>
+                                <input type="number" id="edit-decimals" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 transition-colors duration-200 bg-white">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-eye text-purple-500 mr-2"></i>
+                                    Display Decimals *
+                                </label>
+                                <input type="number" id="edit-maxDecimalsShow" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 transition-colors duration-200 bg-white">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-dollar-sign text-purple-500 mr-2"></i>
+                                    USD Price *
+                                </label>
+                                <input type="number" step="0.01" id="edit-usdPrice" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 transition-colors duration-200 bg-white">
+                            </div>
+
+                            <div class="md:col-span-2 lg:col-span-3 space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-layer-group text-purple-500 mr-2"></i>
+                                    Underlying Asset
+                                </label>
+                                <input type="text" id="edit-underlyingAsset"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 transition-colors duration-200 bg-white font-mono"
+                                    placeholder="0x... (optional)">
+                                <p class="text-xs text-gray-500">The underlying asset contract address if this is a
+                                    wrapped/derivative token</p>
+                            </div>
+
+                            <div class="md:col-span-2 lg:col-span-3 space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-arrow-down text-purple-500 mr-2"></i>
+                                    Withdraw Contract
+                                </label>
+                                <input type="text" id="edit-withdrawContract"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 transition-colors duration-200 bg-white font-mono"
+                                    placeholder="0x... (optional)">
+                                <p class="text-xs text-gray-500">The contract address used for withdrawing this asset
+                                </p>
+                            </div>
+
+                            <div class="md:col-span-2 lg:col-span-3 space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-link text-purple-500 mr-2"></i>
+                                    Withdraw URI
+                                </label>
+                                <input type="url" id="edit-withdrawUri"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="https://... (optional)">
+                                <p class="text-xs text-gray-500">URI or URL for withdrawal information or interface</p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-calendar text-purple-500 mr-2"></i>
+                                    Maturity
+                                </label>
+                                <input type="text" id="edit-maturity"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="e.g., 2024-12-31 (optional)">
+                                <p class="text-xs text-gray-500">Maturity date for time-locked assets</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Asset Properties Section -->
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                        <div class="flex items-center mb-6">
+                            <div
+                                class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-toggle-on text-white text-sm"></i>
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-900">Asset Properties</h4>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-white rounded-xl p-4 border border-green-200">
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" id="edit-yieldBearingToken"
+                                        class="w-5 h-5 text-green-600 focus:ring-green-500 border-2 border-gray-300 rounded">
+                                    <div>
+                                        <label for="edit-yieldBearingToken"
+                                            class="block text-sm font-semibold text-gray-900">Yield-bearing
+                                            Token</label>
+                                        <p class="text-xs text-gray-500">Generates yield over time</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-4 border border-green-200">
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" id="edit-enabled"
+                                        class="w-5 h-5 text-green-600 focus:ring-green-500 border-2 border-gray-300 rounded">
+                                    <div>
+                                        <label for="edit-enabled"
+                                            class="block text-sm font-semibold text-gray-900">Enabled</label>
+                                        <p class="text-xs text-gray-500">Asset is active and available</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-4 border border-green-200">
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" id="edit-hasLockYield"
+                                        class="w-5 h-5 text-green-600 focus:ring-green-500 border-2 border-gray-300 rounded">
+                                    <div>
+                                        <label for="edit-hasLockYield"
+                                            class="block text-sm font-semibold text-gray-900">Has Lock Yield</label>
+                                        <p class="text-xs text-gray-500">Supports yield locking features</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lock Yield Configuration Section -->
+                    <div id="edit-lockYieldSection"
+                        class="hidden bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-100">
+                        <div class="flex items-center mb-6">
+                            <div
+                                class="w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-lock text-white text-sm"></i>
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-900">Lock Yield Configuration</h4>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="md:col-span-2 lg:col-span-3 space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-calendar-alt text-yellow-500 mr-2"></i>
+                                    Expiration Date
+                                </label>
+                                <input type="date" id="edit-lockYieldExpirationDate"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white">
+                            </div>
+
+                            <div class="md:col-span-2 lg:col-span-3 space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-building text-yellow-500 mr-2"></i>
+                                    Protocol Name
+                                </label>
+                                <input type="text" id="edit-lockYieldProtocolName"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="e.g., Pendle">
+                            </div>
+
+                            <div class="md:col-span-2 lg:col-span-3">
+                                <div class="bg-white rounded-xl p-4 border border-yellow-200">
+                                    <div class="flex items-center space-x-3">
+                                        <input type="checkbox" id="edit-lockYieldSwap"
+                                            class="w-5 h-5 text-yellow-600 focus:ring-yellow-500 border-2 border-gray-300 rounded">
+                                        <div>
+                                            <label for="edit-lockYieldSwap"
+                                                class="block text-sm font-semibold text-gray-900">Swap Enabled</label>
+                                            <p class="text-xs text-gray-500">Enable swap functionality for this lock
+                                                yield</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">YT Address</label>
+                                <input type="text" id="edit-lockYieldYtAddress"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white font-mono"
+                                    placeholder="0x...">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">PT Address</label>
+                                <input type="text" id="edit-lockYieldPtAddress"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white font-mono"
+                                    placeholder="0x...">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">Swap Address</label>
+                                <input type="text" id="edit-lockYieldSwapAddress"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white font-mono"
+                                    placeholder="0x...">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">YT Market Address</label>
+                                <input type="text" id="edit-lockYieldYtMarketAddress"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white font-mono"
+                                    placeholder="0x...">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">YT Decimals</label>
+                                <input type="number" id="edit-lockYieldYtDecimals"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="18">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">PT Decimals</label>
+                                <input type="number" id="edit-lockYieldPtDecimals"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="18">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                <div class="text-sm text-gray-500">
+                    <span class="text-red-500">*</span> Required fields
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="window.assetDetailManager.hideEditModal()"
+                        class="px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" form="edit-asset-form"
+                        class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <i class="fas fa-save mr-2"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Protocol Modal -->
+    <div id="add-protocol-modal"
+        class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50 transition-all duration-300 opacity-0">
+        <div
+            class="relative top-20 mx-auto p-6 border-0 w-[90vw] max-w-2xl shadow-2xl rounded-2xl bg-white scale-95 translate-y-4 transition-all duration-200">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-6 border-b border-gray-100">
+                <div class="flex items-center space-x-3">
+                    <div
+                        class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-plus text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Add Protocol</h3>
+                        <p class="text-sm text-gray-500 mt-1">Create a new protocol for organizing steps</p>
+                    </div>
+                </div>
+                <button onclick="window.assetDetailManager.hideAddProtocolModal()"
+                    class="p-2 hover:bg-gray-100 rounded-xl transition-colors duration-200 group">
+                    <i class="fas fa-times text-gray-400 group-hover:text-gray-600 text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="py-6">
+                <form id="add-protocol-form" class="space-y-6">
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                        <div class="space-y-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-sitemap text-blue-500 mr-2"></i>
+                                    Protocol Name *
+                                </label>
+                                <input type="text" id="protocol-name" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white"
+                                    placeholder="e.g., Aave, Compound, Uniswap">
+                                <p class="text-xs text-gray-500">Choose a descriptive name for this protocol</p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-file-alt text-blue-500 mr-2"></i>
+                                    Description
+                                </label>
+                                <textarea id="protocol-description" rows="3"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-colors duration-200 bg-white resize-none"
+                                    placeholder="Brief description of this protocol's purpose..."></textarea>
+                                <p class="text-xs text-gray-500">Optional description to help identify this protocol</p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                <div class="text-sm text-gray-500">
+                    <span class="text-red-500">*</span> Required fields
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="window.assetDetailManager.hideAddProtocolModal()"
+                        class="px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" form="add-protocol-form"
+                        class="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <i class="fas fa-plus mr-2"></i>
+                        Create Protocol
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50"></div>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/step-creator.js"></script>
+    <script src="/js/asset-detail-manager.js"></script>
+    <script>
+        // Sidebar functionality
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const toggleBtn = document.querySelector('.sidebar-toggle i');
+
+            sidebar.classList.toggle('sidebar-collapsed');
+
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                toggleBtn.className = 'fas fa-chevron-right';
+            } else {
+                toggleBtn.className = 'fas fa-chevron-left';
+            }
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+
+            sidebar.classList.add('mobile-open');
+            overlay.classList.add('active');
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+        }
+
+        // Get asset ID from URL
+        function getAssetIdFromUrl() {
+            const urlParts = window.location.pathname.split('/');
+            return urlParts[urlParts.length - 1];
+        }
+
+        const assetId = getAssetIdFromUrl();
+        console.log('Page loaded with asset ID:', assetId);
+        console.log('URL parameters:', window.location.search);
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (assetId) {
+                try {
+                    await window.assetDetailManager.initialize();
+                    window.assetDetailManager.restoreStateFromURL();
+                } catch (error) {
+                    console.error('Failed to initialize asset detail manager:', error);
+                    // Handle error appropriately
+                }
+            }
+        });
+
+        // Handle browser back/forward navigation
+        window.addEventListener('popstate', function (event) {
+            console.log('Browser navigation detected, restoring state from URL');
+            window.assetDetailManager.restoreStateFromURL();
+        });
+    </script>
+</body>
+
+</html>

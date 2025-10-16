@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YieldScan - Protocol Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Enhanced compact styles */
+        body {
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+        
+        .loading-spinner {
+            border: 1px solid #f1f5f9;
+            border-top: 1px solid #6366f1;
+            border-radius: 50%;
+            width: 1rem;
+            height: 1rem;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Compact headers */
+        h1, h2, h3 {
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+        }
+        
+        h2 {
+            font-size: 1.25rem;
+        }
+        
+        h3 {
+            font-size: 1.125rem;
+        }
+        
+        /* Enhanced protocol image */
+        .protocol-image {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        
+        .protocol-image:hover {
+            border-color: #6366f1;
+            transform: scale(1.05);
+        }
+        
+        /* Enhanced detail cards */
+        .detail-card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+        
+        .detail-card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.04);
+            transform: translateY(-1px);
+        }
+        
+        .detail-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-value {
+            font-size: 0.875rem;
+            color: #111827;
+            font-weight: 500;
+            word-break: break-word;
+        }
+        
+        /* Enhanced status badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .status-enabled {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-disabled {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        /* Enhanced category badges */
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .category-badge:hover {
+            transform: scale(1.05);
+        }
+        
+        .category-lending {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .category-dex {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .category-staking {
+            background-color: #ede9fe;
+            color: #7c3aed;
+        }
+        
+        .category-yield-farming {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+        
+        .category-yield-trading {
+            background-color: #e0e7ff;
+            color: #3730a3;
+        }
+        
+        .category-restaking {
+            background-color: #fce7f3;
+            color: #be185d;
+        }
+        
+        .category-other {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+        
+        /* Enhanced chain badges */
+        .chain-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.625rem;
+            font-weight: 500;
+            background-color: #f1f5f9;
+            color: #475569;
+            margin-right: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s ease;
+        }
+        
+        .chain-badge:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-1px);
+        }
+        
+        /* Enhanced buttons */
+        .btn {
+            transition: all 0.2s ease;
+            border-radius: 0.375rem;
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5b21b6, #7c3aed);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+        
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+        }
+        
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        }
+        
+        /* Enhanced loading state */
+        .loading-state {
+            padding: 2rem;
+            text-align: center;
+            color: #6b7280;
+        }
+        
+        .not-found-state {
+            padding: 3rem;
+            text-align: center;
+            color: #6b7280;
+        }
+        
+        /* Enhanced spacing */
+        .section-padding {
+            padding: 1.5rem;
+        }
+        
+        .grid-spacing {
+            gap: 1.5rem;
+        }
+        
+        /* Enhanced responsive design */
+        @media (max-width: 768px) {
+            .protocol-image {
+                width: 40px;
+                height: 40px;
+            }
+            
+            h1 {
+                font-size: 1.25rem;
+            }
+            
+            h2 {
+                font-size: 1.125rem;
+            }
+            
+            .detail-card {
+                border-radius: 0.5rem;
+            }
+            
+            .section-padding {
+                padding: 1rem;
+            }
+            
+            .grid-spacing {
+                gap: 1rem;
+            }
+        }
+        
+        /* Enhanced visual feedback */
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .link-hover:hover {
+            color: #6366f1;
+            text-decoration: underline;
+        }
+        
+        /* Enhanced animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="mobile-title">YieldScan</div>
+        <div></div>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" class="mobile-overlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <a href="/backoffice/assets" class="sidebar-logo">
+                <div class="logo-icon">YS</div>
+                <div class="logo-text">YieldScan</div>
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="/backoffice/assets" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="nav-text">Assets</div>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="/backoffice/chains" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <div class="nav-text">Chains</div>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="/backoffice/protocols" class="nav-link active">
+                    <div class="nav-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="nav-text">Protocols</div>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="nav-text">Analytics</div>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="nav-text">Portfolio</div>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <div class="nav-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="nav-text">Settings</div>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-state">
+                <div class="flex items-center justify-center">
+                    <div class="loading-spinner mr-2"></div>
+                    <span>Loading protocol details...</span>
+                </div>
+            </div>
+
+            <!-- Protocol Not Found -->
+            <div id="notFoundState" class="not-found-state hidden">
+                <div class="text-center">
+                    <i class="fas fa-exclamation-triangle text-gray-400 text-4xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Protocol Not Found</h3>
+                    <p class="text-gray-500 mb-4">The requested protocol could not be found.</p>
+                    <a href="/backoffice/protocols" class="btn btn-primary px-4 py-2">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Protocols
+                    </a>
+                </div>
+            </div>
+
+            <!-- Protocol Details -->
+            <div id="protocolDetails" class="hidden fade-in">
+                <!-- Header -->
+                <div class="px-4 py-6 sm:px-0">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <a href="/backoffice/protocols" class="btn btn-secondary px-3 py-2 mr-4">
+                                <i class="fas fa-arrow-left mr-2"></i>
+                                Back
+                            </a>
+                            <div class="flex items-center">
+                                <img id="protocolImage" class="protocol-image mr-4" alt="Protocol Logo">
+                                <div>
+                                    <h1 id="protocolName" class="text-2xl font-bold text-gray-900"></h1>
+                                    <p id="protocolCategory" class="text-sm text-gray-500"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="editProtocol()" class="btn btn-primary px-4 py-2">
+                                <i class="fas fa-edit mr-2"></i>
+                                Edit
+                            </button>
+                            <button onclick="deleteProtocol()" class="btn btn-danger px-4 py-2">
+                                <i class="fas fa-trash mr-2"></i>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="px-4 sm:px-0">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 grid-spacing">
+                        <!-- Basic Information -->
+                        <div class="lg:col-span-2">
+                            <div class="detail-card section-padding">
+                                <h2 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <div class="detail-label">Protocol Name</div>
+                                        <div id="protocolNameDetail" class="detail-value"></div>
+                                    </div>
+                                    <div>
+                                        <div class="detail-label">Display Name</div>
+                                        <div id="protocolDisplayName" class="detail-value"></div>
+                                    </div>
+                                    <div>
+                                        <div class="detail-label">Category</div>
+                                        <div id="protocolCategoryBadge" class="category-badge"></div>
+                                    </div>
+                                    <div>
+                                        <div class="detail-label">Status</div>
+                                        <div id="protocolStatusBadge" class="status-badge"></div>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <div class="detail-label">Website</div>
+                                        <div id="protocolWebsite" class="detail-value"></div>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <div class="detail-label">Description</div>
+                                        <div id="protocolDescription" class="detail-value"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Supported Chains -->
+                        <div>
+                            <div class="detail-card section-padding">
+                                <h2 class="text-lg font-semibold text-gray-900 mb-4">Supported Chains</h2>
+                                <div id="supportedChains" class="flex flex-wrap gap-2">
+                                    <!-- Chain badges will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Metadata -->
+                        <div class="lg:col-span-3">
+                            <div class="detail-card section-padding">
+                                <h2 class="text-lg font-semibold text-gray-900 mb-4">Metadata</h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <div class="detail-label">Protocol ID</div>
+                                        <div id="protocolId" class="detail-value font-mono text-sm"></div>
+                                    </div>
+                                    <div>
+                                        <div class="detail-label">Created</div>
+                                        <div id="protocolCreated" class="detail-value"></div>
+                                    </div>
+                                    <div>
+                                        <div class="detail-label">Last Updated</div>
+                                        <div id="protocolUpdated" class="detail-value"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Protocol Modal -->
+    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50 transition-all duration-300 opacity-0">
+        <div class="relative top-4 mx-auto p-6 border-0 w-[98vw] max-w-4xl shadow-2xl rounded-2xl bg-white max-h-[96vh] overflow-hidden flex flex-col scale-95 translate-y-4 transition-all duration-200">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-6 border-b border-gray-100">
+                <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-edit text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Edit Protocol</h3>
+                        <p class="text-sm text-gray-500 mt-1">Update protocol information</p>
+                    </div>
+                </div>
+                <button onclick="hideEditModal()" class="p-2 hover:bg-gray-100 rounded-xl transition-colors duration-200 group">
+                    <i class="fas fa-times text-gray-400 group-hover:text-gray-600 text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-y-auto py-6">
+                <form id="editProtocolForm">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Protocol Name *</label>
+                            <input type="text" id="editName" name="name" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Display Name *</label>
+                            <input type="text" id="editDisplayName" name="displayName" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Image URL *</label>
+                            <input type="url" id="editImage" name="image" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Website</label>
+                            <input type="url" id="editWebsite" name="website" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                            <select id="editCategory" name="category" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                                <option value="">Select Category</option>
+                                <option value="Lending">Lending</option>
+                                <option value="DEX">DEX</option>
+                                <option value="Staking">Staking</option>
+                                <option value="Yield Farming">Yield Farming</option>
+                                <option value="Yield Trading">Yield Trading</option>
+                                <option value="Restaking">Restaking</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <select id="editEnabled" name="enabled" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                                <option value="true">Enabled</option>
+                                <option value="false">Disabled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <textarea id="editDescription" name="description" rows="3" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"></textarea>
+                    </div>
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Supported Chains</label>
+                        <div id="editChainCheckboxes" class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            <!-- Chain checkboxes will be populated dynamically -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-100">
+                <button onclick="hideEditModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button onclick="saveProtocol()" class="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-indigo-700">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/ui-service.js"></script>
+    <script src="/js/protocol-detail-manager.js"></script>
+    <script>
+        // Initialize global objects
+        window.uiService = new UiService();
+        window.protocolDetailManager = new ProtocolDetailManager();
+        
+        // Global functions
+        function editProtocol() {
+            if (window.protocolDetailManager) {
+                window.protocolDetailManager.editProtocol();
+            }
+        }
+        
+        function deleteProtocol() {
+            if (window.protocolDetailManager) {
+                window.protocolDetailManager.deleteProtocol();
+            }
+        }
+        
+        function hideEditModal() {
+            if (window.protocolDetailManager) {
+                window.protocolDetailManager.hideEditModal();
+            }
+        }
+        
+        function saveProtocol() {
+            if (window.protocolDetailManager) {
+                window.protocolDetailManager.saveProtocol();
+            }
+        }
+    </script>
+    
+    <script>
+        // Sidebar functionality
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const toggleBtn = document.querySelector('.sidebar-toggle i');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                toggleBtn.className = 'fas fa-chevron-right';
+            } else {
+                toggleBtn.className = 'fas fa-chevron-left';
+            }
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            
+            sidebar.classList.add('mobile-open');
+            overlay.classList.add('active');
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Ensure all objects are available before initializing
+            if (window.protocolDetailManager) {
+                await window.protocolDetailManager.initialize();
+            } else {
+                console.error('ProtocolDetailManager not available');
+            }
+        });
+    </script>
+</body>
+</html> 

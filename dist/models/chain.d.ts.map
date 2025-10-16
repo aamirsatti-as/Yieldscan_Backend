@@ -1,0 +1,1 @@
+{"version":3,"file":"chain.d.ts","sourceRoot":"","sources":["../../src/models/chain.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,QAAQ,EAAE,MAAM,oBAAoB,CAAC;AAE9C,qBACa,KAAK;IAEd,GAAG,EAAG,QAAQ,CAAC;IAGf,IAAI,EAAG,MAAM,CAAC;IAGd,OAAO,EAAG,MAAM,CAAC;IAGjB,KAAK,EAAG,MAAM,CAAC;gBAGX,IAAI,EAAE,MAAM,EACZ,OAAO,EAAE,MAAM,EACf,KAAK,EAAE,MAAM;CAMpB"}
