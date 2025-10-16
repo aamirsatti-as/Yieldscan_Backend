@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% block footer-explore %}{% endblock %}
+
+<div class="flex flex-col items-center w-full gap-[20px] my-[100px]">
+    <div class="max-w-[475px]">
+        <a href="/">
+            <img src="{% static 'images/404.svg' %}" alt="logo" />
+        </a>
+    </div>
+    <div class="text-[28px] font-kumbh-sans font-bold max-w-[475px] text-center mt-1">
+        Oops! Looks like you’ve wandered into uncharted territory.
+    </div>
+    <div class="mt-1">
+        <a href="/">
+            <span class="bg-[#F6D658] px-4 py-2 text-xl font-semibold rounded-md text-black">Back to Home</span>
+        </a>
+    </div>
+    </>
+</div>
+</div>
+{% endblock %}

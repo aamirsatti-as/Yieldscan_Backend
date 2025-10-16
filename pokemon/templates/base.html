@@ -1,0 +1,415 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@100..900&family=Poppins:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{% static 'css/output.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/micromodal.css' %}" />
+    
+
+    <!-- Alpine.js -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Swiper.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
+
+    <!-- Modal -->
+    <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
+
+    {% block meta %}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://64.176.164.234:12000" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Pokemon" />
+    <meta property="og:title" content="Pokemon Home" />
+    <meta property="og:image:width" content="300">
+    <meta property="og:image:height" content="300">
+    <meta property="og:image" itemprop="image" content="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=60.jpg" />
+    <meta property="og:description" content="This is a page about the Pokemon universe. Discover the world of Pokemon and more." />
+    <!--  -->
+    {% endblock %}
+    <title>{% block title %}Pokemon{% endblock %}</title>
+
+</head>
+  <body class="pt-[22px]" id="main-body-container">
+    <!-- header -->
+    {% block header %}
+    <header
+      id="main-page-header"
+      class="max-w-[1240px] mx-auto flex flex-row justify-between items-center gap-[22px] px-4"
+    >
+      <div class="flex flex-row gap-4 justify-start flex-1">
+        <!-- logo -->
+        <button
+          class="burger menu flex md:hidden items-center justify-center bg-[#F5F5F2] p-2 rounded-full w-10 h-10"
+        >
+          <img src="{% static 'images/burger-menu.svg' %}" alt="menu" />
+        </button>
+        {% if request.path == '/search/' %}
+        <!-- search bar -->
+        <a class="md:block hidden" href="/">
+          <img src="{% static 'images/logo.svg' %}" alt="logo" />
+        </a>
+        <form
+          class="flex-1"
+          method="get"
+          action="{% url 'search' %}"
+        >
+          <div class="border-[#DDE2E4] border rounded-md p-2.5 text-xs md:text-base">
+            <input
+              name="query"
+              type="search"
+              placeholder="Search here"
+              class="border-none w-full outline-none flex-1 text-lg"
+              value="{{ request.GET.query|default:'' }}"
+            />
+          </div>
+        </form>
+        {% else %}
+        <div class="flex flex-row justify-start items-center">
+          <a href="/">
+            <img src="{% static 'images/logo.svg' %}" alt="logo" />
+          </a>
+        </div>
+        <!-- search bar -->
+        <form
+          class="hidden md:block flex-1"
+          method="get"
+          action="{% url 'search' %}"
+        >
+          <div class="border-[#DDE2E4] border rounded-md p-2.5">
+            <input
+              name="query"
+              type="search"
+              placeholder="Search here"
+              class="border-none w-full outline-none flex-1 text-lg"
+              value="{{ request.GET.query|default:'' }}"
+            />
+          </div>
+        </form>
+        <div class="md:hidden flex items-center gap-4 flex-1 justify-end">
+          <a href="{% url 'favorites' %}" class="bg-[#F5F5F2] p-2 rounded-full w-10 h-10">
+            <img
+              src="{% static 'images/heart.svg' %}"
+              class="w-6 h-6"
+              alt="heart icon"
+            />
+          </a>
+          <a href="{% url 'search' %}" class="bg-[#F5F5F2] p-2 rounded-full w-10 h-10">
+            <img
+              src="{% static 'images/search.svg' %}"
+              class="w-6 h-6"
+              alt="search icon"
+            />
+          </a>
+        </div>
+        {% endif %}
+      </div>
+      <!-- navigation -->
+      <div class="hidden md:flex flex-row justify-between items-center gap-8">
+        <div class="flex flex-row justify-start items-center gap-5">
+          <a href="{% url 'index' %}" class="{% if request.path == '/' %}text-[#E9BA0D] border-b-2 border-[#E9BA0D]{% endif %}">Home</a>
+          <a href="{% url 'news' %}" class="{% if request.path == '/news/' %}text-[#E9BA0D] border-b-2 border-[#E9BA0D]{% endif %}">News</a>
+          <a href="{% url 'about' %}" class="{% if request.path == '/about/' %}text-[#E9BA0D] border-b-2 border-[#E9BA0D]{% endif %}">About</a>
+          <a href="{% url 'help' %}" class="{% if request.path == '/help/' %}text-[#E9BA0D] border-b-2 border-[#E9BA0D]{% endif %}">Help</a>
+          <a href="{% url 'owned' %}" class="{% if request.path == '/auth/owned/' %}text-[#E9BA0D] border-b-2 border-[#E9BA0D]{% endif %}">Sell</a>
+        </div>
+        <div class="flex flex-row justify-start items-center gap-5">
+          {% if not user.is_authenticated %}
+          <div class="flex items-center gap-4">
+            <a
+              href="{% url 'login' %}"
+              class="bg-[#EAECEF] px-6 py-2 rounded-md "
+            >
+              <span class="capitalize text-black text-md font-medium"
+                >Log In</span
+              >
+            </a>
+            <a
+              href="{% url 'register' %}"
+              class="bg-[#F6D658] px-6 py-2 rounded-md hover:bg-[#F6D658]/80 transition"
+            >
+              <span class="capitalize text-black text-md font-medium"
+                >Sign Up</span
+              >
+            </a>
+          </div>
+          {% endif %} 
+          {% if user.is_authenticated %}
+          <div class="flex gap-x-2">
+            <a
+              href="{% url 'deposit-funds' %}"
+              class="bg-[#F6D658] px-4 py-2 rounded-md md:hidden"
+            >
+              <span class="capitalize text-black "
+                >Deposit</span
+              >
+            </a>
+            <div class="relative">
+              <button
+              id="deposit-modal-btn"
+              class="bg-[#F6D658] px-4 py-2 rounded-md hidden md:block capitalize text-black"
+              >
+              Deposit
+            </button>
+            <div id="deposit-modal" class="hidden absolute bottom-0 right-0 bg-white z-[10000] overflow-auto shadow-lg rounded-md">
+              <div id="content" class="p-9">
+                <form method="post" action="{% url 'deposit-funds' %}">
+                  {% csrf_token %}
+                  <div class="flex flex-col justify-start items-start w-full gap-2.5">
+                    <div class="flex flex-row items-center justify-between w-full">
+                      <span class="text-sm md:text-base font-normal capitalize">Amount</span>
+                    </div>
+                    <input class="border border-gray-300 p-2 rounded-md w-[300px]" type="number" placeholder="0" name="amount" required />
+                  </div>
+                  <div class="grid mt-5 gap-y-3 w-full">
+                    <button type="submit" class="py-3 rounded-md px-9 bg-primary w-full text-center">
+                      <span class="md:text-xl font-medium text-black capitalize">Request</span>
+                    </button>
+                    <button id="close-modal-btn" type="button" class="py-3 border-2 rounded-md px-9 w-full bg-[#EAECEF] text-center">
+                      <span class="md:text-xl font-medium capitalize">Cancel</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            </div>
+            <a
+              href="{% url 'profile' %}"
+            >
+              <img src="https://media.istockphoto.com/id/1300972574/photo/millennial-male-team-leader-organize-virtual-workshop-with-employees-online.jpg?s=612x612&w=0&k=20&c=uP9rKidKETywVil0dbvg_vAKyv2wjXMwWJDNPHzc_Ug=" alt="profile"
+              class="w-10 h-10 rounded-full cover object-cover "
+               >
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- mobile navigation -->
+      <div
+        class="sidebar-nav fixed top-0 bottom-0 left-0 w-full h-screen bg-white z-[10000] border-r-1
+        opacity-0 invisible -translate-x-full transition-transform duration-600 md:hidden"
+      >
+        <div class="flex items-center justify-between m-4 pb-1 border-b border-[#EAECEF]">
+          <img src="{% static 'images/logo.svg' %}" alt="logo" />
+          <button
+            class="cross items-center justify-center bg-[#F5F5F2] rounded-full w-8 h-8 pb-1"
+          >
+            x
+          </button>
+        </div>
+        <div class="flex flex-col gap-4 p-6 nav">
+          <a href="{% url 'index' %}" aria-current="page">Home</a>
+          <a href="{% url 'news' %}">News</a>
+          <a href="{% url 'about' %}">About</a>
+          <a href="{% url 'help' %}">Help</a>
+          <a href="{% url 'owned' %}">Sell</a>
+          <div class="flex flex-row items-start justify-center gap-4">
+            {% if not user.is_authenticated %}
+            <a
+              href="{% url 'login' %}"
+              class="bg-[#EAECEF] px-6 py-2 rounded-md"
+            >
+              <span class="capitalize text-black text-md font-medium"
+                >Log In</span
+              >
+            </a>
+            <a
+              href="{% url 'register' %}"
+              class="bg-[#F6D658] px-6 py-2 rounded-md hover:bg-[#F6D658]/90 transition"
+            >
+              <span class="capitalize text-black text-md font-medium"
+                >Sign Up</span
+              >
+            </a>
+            {% else %}
+            <div class="flex flex-row-reverse gap-2">
+              <a
+                href="{% url 'deposit-funds' %}"
+                class="bg-[#F6D658] px-4 py-2 rounded-md"
+              >
+                <span class="capitalize text-black "
+                  >Deposit</span
+                >
+              </a>
+              <a
+                href="{% url 'profile' %}"
+              >
+                <img src="https://media.istockphoto.com/id/1300972574/photo/millennial-male-team-leader-organize-virtual-workshop-with-employees-online.jpg?s=612x612&w=0&k=20&c=uP9rKidKETywVil0dbvg_vAKyv2wjXMwWJDNPHzc_Ug=" alt="profile"
+                class="w-10 h-10 rounded-full cover object-cover "
+                 >
+              </a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </header>
+    {% endblock %}
+
+    <!-- topbar -->
+    {% block topbar %}
+    <div
+      id="main-page-topbar"
+      class="hidden max-w-[1240px] mx-auto md:flex flex-row justify-between items-center mt-4 bg-[#F5F5F2] px-[22px] py-[13px] rounded-md"
+    >
+      <div class="dropdown">
+        <button class="nav-btn">Miscellaneous Cards & Products</button>
+        <div class="dropdown-content">Content for Miscellaneous Cards</div>
+      </div>
+
+      <div class="dropdown">
+        <button class="nav-btn">League & Championship Cards</button>
+        <div class="dropdown-content">
+          Content for League & Championship Cards
+        </div>
+      </div>
+
+      <div class="dropdown">
+        <button class="nav-btn">Jumbo Cards</button>
+        <div class="dropdown-content">Content for Jumbo Cards</div>
+      </div>
+
+      <div class="dropdown">
+        <button class="nav-btn">Prize Pack Series Cards</button>
+        <div class="dropdown-content">Content for Prize Pack Series Cards</div>
+      </div>
+
+      <div class="dropdown">
+        <button class="nav-btn">More</button>
+        <div class="dropdown-content">More content here</div>
+      </div>
+    </div>
+    {% endblock %}
+    <div id="toast-container" 
+        class="fixed top-4 left-4 max-w-sm bg-white border border-black rounded-[8px] text-black shadow-lg z-[10000]  opacity-0 invisible -translate-x-full transition-all duration-500 ease-out px-4 py-2">
+    </div>
+    <div id="content" class="max-w-[1240px] mx-auto">{% block content %}{% endblock %}</div>
+    <!-- Cta -->
+    {% block footer-explore %}
+    <div
+      id="main-page-footer-explore"
+      class="footer-explore-section relative w-full h-10 md:h-[141px] mt-20 flex items-center justify-evenly"
+    >
+      <img src="{% static 'images/footer-dragon.png' %}"
+        class="mb-[30px] md:mb-20 w-[72px] md:w-[241px]"
+        alt="dragon">
+
+    
+        <div>
+          <h3 class="text-center text-[#F6D658] uppercase text-[10px] md:text-base">
+            Magic the gathering
+          </h3>
+          <span class="text-center text-white capitalize font-bold text-sm md:text-[46px]"
+            >innistrad remastered</span
+          >
+        </div>
+
+        
+          <button class="bg-[#F6D658] px-1.5 md:px-4 md:py-2 rounded-md">
+            <span class="capitalize text-black text-[10px] md:text-base">Explore now</span>
+          </button>
+        
+    </div>
+    {% endblock %}
+    
+    {% block footer %}
+    <footer 
+      id="main-page-footer"
+     class="max-w-[1240px] mx-auto mt-[30px] md:mt-[70px]">
+      <div
+        class="flex flex-row justify-between items-center border-t-2 border-[#252C32] py-5"
+      >
+      <div class="flex items-center">
+        <img class="w-10 h-[26px] me-1" src="{% static 'images/visa.png' %}" alt="" />
+        <img class="w-10 h-[26px] me-1" src="{% static 'images/master-card.png' %}" alt="" />
+        <img class="w-10 h-[26px] me-1" src="{% static 'images/maestro.png' %}" alt="" />
+        <img class="w-10 h-[26px]" src="{% static 'images/american-express.png' %}" alt="" />
+
+      </div>
+        <img class="w-[96px] md:w-[109px]" src="{% static 'images/socials.png' %}" alt="" />
+        <p class="hidden md:block text-sm font-normal text-center">©2024 Pokémon. ©1995 - 2024 Nintendo/Creatures Inc./GAME FREAK inc. TM, ®Nintendo.</p>
+      </div>
+      <p class="md:hidden text-xs font-normal text-center">©2024 Pokémon. ©1995 - 2024 Nintendo/Creatures Inc./GAME FREAK inc. TM, ®Nintendo.</p>
+    </footer>
+    {% endblock %}
+
+    <script>
+      const burger = document.querySelector('.burger');
+      const cross = document.querySelector('.cross');
+      const sidebar = document.querySelector('.sidebar-nav');
+
+      burger.addEventListener('click', () => {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.remove('opacity-0', 'invisible');
+      });
+
+      cross.addEventListener('click', () => {
+        sidebar.classList.add('opacity-0', 'invisible', '-translate-x-full');
+      });
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const buttons = document.querySelectorAll('.nav-btn');
+
+        buttons.forEach((button) => {
+          button.addEventListener('click', function (event) {
+            // Close all dropdowns first
+            document.querySelectorAll('.dropdown-content').forEach((menu) => {
+              if (menu !== this.nextElementSibling) {
+                menu.classList.remove('show');
+              }
+            });
+
+            // Toggle the current dropdown
+            const dropdownMenu = this.nextElementSibling;
+            dropdownMenu.classList.toggle('show');
+          });
+        });
+
+        // Close dropdowns if clicking outside
+        document.addEventListener('click', function (event) {
+          if (!event.target.matches('.nav-btn')) {
+            document.querySelectorAll('.dropdown-content').forEach((menu) => {
+              menu.classList.remove('show');
+            });
+          }
+        });
+      });
+
+      const depositModal = document.querySelector('div#deposit-modal');
+      const depositModalBtn = document.querySelector('button#deposit-modal-btn');
+      const closeDepositModalBtn = document.querySelector('button#close-modal-btn');
+
+      depositModalBtn.addEventListener('click', () => {
+        depositModal.classList.remove('hidden');
+      })
+
+      closeDepositModalBtn.addEventListener('click', () => {
+        depositModal.classList.add('hidden');
+      })
+
+      window.addEventListener('click', (event) => {
+        if (!modal.contains(event.target) && event.target != depositModalBtn) {
+          depositModal.classList.add('hidden');
+        }
+      });
+    </script>
+  </body>
+</html>

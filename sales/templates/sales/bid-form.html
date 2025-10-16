@@ -1,0 +1,26 @@
+{% extends 'base.html' %} 
+{% block content %}
+<div class="flex flex-col gap-4 p-20 m-auto w-max">
+    <form method="post">
+        {% csrf_token %} 
+        <div class="grid gap-4">
+            {{ form }}
+        </div>
+        <button
+            type="submit"
+            class="bg-primary text-white clear-start w-full py-3 text-lg rounded-lg font-semibold mt-4"
+        >
+            Bid
+        </button>
+    </form>
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <div class="text-red-500 text-center">{{ message }}</div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+{% block details %}
+<div class="flex flex-col">
+    <h3 class="md:text-[32px] font-semibold capitalize">Wallet</h3>
+    <p class="text-xs md:hidden text-[#525156]">Your wallet page is here</p>
+</div>
+<div class="h-[1px] bg-[#1e232933] w-full mt-5 md:mt-6 md:hidden"></div>
+<div class="flex flex-col items-start justify-start gap-5">
+    <div class="w-full mt-6">
+        <div class="flex flex-row items-end justify-between ">
+            <span class="font-medium font-kumbh-sans">Buying info</span>
+            <button class="px-5 py-1.5 md:px-8 md:py-3 rounded-md bg-[#EAECEF]">
+                <span class="text-xs md:text-base font-medium capitalize">edit</span>
+            </button>
+        </div>
+        <div class="h-[1px] bg-[#1e232933] w-full mt-2.5 mb-[15px]"></div>
+        <p class="text-xs md:text-base text-[#525156] font-kumbh-sans">You do not have any payment information on file.</p>
+    </div>
+
+    <div class="w-full">
+        <div class="flex flex-row items-end justify-between ">
+            <span class="font-medium font-kumbh-sans">Seller Info</span>
+            <button class="px-5 py-1.5 md:px-8 md:py-3 rounded-md bg-[#EAECEF]">
+                <span class="text-xs md:text-base font-medium capitalize">edit</span>
+            </button>
+        </div>
+        <div class="h-[1px] bg-[#1e232933] w-full mt-2.5 mb-[15px]"></div>
+        <p class="text-xs md:text-base text-[#525156] font-kumbh-sans">You do not have any payment information on file.</p>
+    </div>
+
+    <div class="w-full">
+        <div class="flex flex-row items-end justify-between ">
+            <span class="font-medium font-kumbh-sans">Payout Info</span>
+            <button class="px-5 py-1.5 md:px-8 md:py-3 rounded-md bg-[#EAECEF]" disabled>
+                <span class="text-xs md:text-base font-medium capitalize text-[#6c7177]">edit</span>
+            </button>
+        </div>
+        <div class="h-[1px] bg-[#1e232933] w-full mt-2.5 mb-[15px]"></div>
+        <p class="text-xs md:text-base text-[#525156] font-kumbh-sans">You do not have any payment information on file.</p>
+    </div>
+</div>
+{% endblock %}

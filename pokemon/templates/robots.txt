@@ -1,0 +1,22 @@
+User-agent: *
+Disallow: 
+
+# Allow public sections (if needed)
+Allow: /market/
+Allow: /card-detail/
+Allow: /cards/
+
+# Casino-specific rules
+Allow: /casino/
+
+# Image permissions
+User-agent: Googlebot-Image
+Allow: /cards/
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+Sitemap: http://64.176.164.234:12000/sitemap.xml

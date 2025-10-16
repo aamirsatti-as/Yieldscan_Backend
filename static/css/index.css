@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body *{
+     font-family: "Kumbh Sans", serif;
+}
+
+
+[data-icon]{
+     height: inherit;
+     width: inherit;
+     background-size: contain;
+     background-repeat: no-repeat;
+     background-position: center;
+     display: block;
+}
+
+
+[data-icon="arrow"] {
+     background-image: url('../images/arrow.svg');
+}
+
+[data-icon="heart"] {
+     background-image: url('../images/heart.svg');
+}
+
+[data-icon="heart-filled"] {
+     background-image: url('../images/heart-filled.svg');
+}
+
+[data-icon="cross"] {
+     background-image: url('../images/cross.svg');
+}
+
+[data-icon="plus"] {
+     background-image: url('../images/plus.svg');
+}
+
+[data-icon="minus"] {
+     background-image: url('../images/minus.svg');
+}
+
+[data-icon="sort"] {
+     background-image: url('../icons/sort.svg');
+}

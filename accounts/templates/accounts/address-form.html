@@ -1,0 +1,25 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+{% block details %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="grid md:grid-cols-2 gap-4 mt-[30px]">
+        {% for field in form %}
+        <div class="flex flex-col justify-start items-start w-full gap-1.5">
+            <div class="flex flex-row items-center justify-between w-full">
+                <span class="text-lg font-medium capitalize">{{ field.label }}</span>
+            </div>
+            {{ field }}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="flex flex-row md:flex-row-reverse items-center justify-between md:justify-start gap-x-[30px] md:gap-5 mt-9">
+        <button type="submit" class="w-full md:w-max py-3 rounded-md px-9 bg-primary">
+            <span class="text-xl font-medium text-black capitalize">submit</span>
+        </button>
+        <a href="{% url 'profile' %}" class="bg-[#EAECEF] w-full md:w-max py-3 border-2 rounded-md px-9 text-center">
+            <span class="text-xl font-medium capitalize">cancel</span>
+        </a>
+    </div>
+</form>
+{% endblock %}

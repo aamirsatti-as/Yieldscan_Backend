@@ -1,0 +1,526 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load component_tags %}
+{% block title %}Pokemon: Auction Page{% endblock %}
+{% block content %}
+{% with auction.card_entity.card as card %}
+
+<!-- Fullscreen Background Overlay -->
+<div id="model-toggle" class="hidden"></div>
+<div id="modal-background" class="hidden fixed top-0 left-0 h-screen w-full bg-[#2E2E2ECF] bg-opacity-85 z-50">
+</div>
+<div id="modalBackdrop" class="hidden fixed inset-0 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <!-- Modal Container -->
+    <div class="fixed top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%]">
+        <div class="flex flex-col md:w-[710px] md:h-[570px] md:bg-white md:border-2 md:border-[#DDE2E4] md:rounded-lg md:pt-3 px-6 md:px-0">
+            <div class="flex flex-col gap-4 border border-[#DDE2E4] md:border-none rounded-lg p-6">
+                <form>
+                    <div class="flex w-full ">
+                        <p class="md:text-[28px] capitalize font-semibold w-full">Place Bid</p>
+                        <span class="w-full flex justify-end">
+                            <span class="h-[31px] w-[31px] rounded-[38px] bg-[#EAECEF] flex items-center justify-center cursor-pointer" 
+                            onclick="clsoeModal()">
+                                <img src="/static/icons/cross.svg" class="h-[13px] w-[13px]" alt=""/>
+                            </span>
+                        </span>
+                    </div>
+                    <p class="current-bid text-xs md:text-2xl text-[#1E2329] font-medium">${{ highest_bid }} Current Bid</p>
+                    <p class="auction-bids-end-timer text-xs md:text-2xl text-[#525156] font-medium">{{ auction.total_bids }} Bids  Ends in {{ auction.time_remaining }} ({{ auction.end_time_formatted }}) </p>
+                    <div class="grid grid-cols-3 mt-[40px] gap-x-5">
+                        <button id ="bid-option-1" onclick="handleBidOptionClick(1)" data-bid="{{ sell_price|add:1 }}" type="button" class="bid-btn py-3 rounded-md bg-[#2EBD85] text-white md:text-xl font-medium">Bid ${{ sell_price|add:1 }}</button>
+                        <button id ="bid-option-2" onclick="handleBidOptionClick(2)" data-bid="{{ sell_price|add:2 }}" type="button" class="bid-btn py-3 rounded-md bg-[#2EBD85] text-white md:text-xl font-medium">Bid ${{ sell_price|add:2 }}</button>
+                        <button id ="bid-option-3" onclick="handleBidOptionClick(3)" data-bid="{{ sell_price|add:3 }}" type="button" class="bid-btn py-3 rounded-md bg-[#2EBD85] text-white md:text-xl font-medium">Bid ${{ sell_price|add:3 }}</button>
+                    </div>
+                    <div class="flex flex-row justify-center items-center w-full gap-2 my-[36px]">
+                        <div class="h-[2px] bg-[#1E232933] flex-1"></div>
+                        <span class="text-xs">OR</span>
+                        <div class="h-[2px] bg-[#1E232933] flex-1"></div>
+                    </div>
+                    {% csrf_token %} 
+                    <p class="text-sm md:text-2xl text-[#1E2329] font-medium">Your Max Bid</p>
+                    {% component "bid-input" /%}
+                    <p  id="min-bid-text" class="text-[10px] md:text-base font-normal text-[#5D5F5F] mt-3">Enter ${{ sell_price|add:1 }} or more.</p>
+                </form>
+                <p class="mt-[20px] text-xs md:text-xl font-medium">
+                    By selecting <span class="text-[#2EBD85]">Confirm bid</span>, you are committing to buy this item if you are the winning bidder.
+                </p>
+                {% if messages %}
+                <div>
+                    {% for message in messages %}
+                        {% if message.tags == 'error' %}
+                            <div class="text-red-500 text-center">{{ message }}</div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<div id="bid-section-mobile" class="hidden md:hidden ">
+    <div class="flex px-6 text-[#252C32] text-[15px] font-semibold items-center cursor-pointer" onclick="clsoeModal()">
+        <div>
+            <img src="/static/icons/back.svg" class="h-6 w-6" alt=""/>
+        </div>
+        <div class="ml-4">
+            Back
+        </div>
+    </div>
+    <div class=" mt-[20px] flex flex-col md:bg-white md:border-2 md:border-[#DDE2E4] md:rounded-lg md:pt-3 px-6 md:px-0">
+        <div class="flex flex-col gap-4 border border-[#DDE2E4] md:border-none rounded-lg p-6">
+            <form>
+                <div class="flex w-full ">
+                    <p class="md:text-[28px] capitalize font-semibold w-full">Place Bid</p>
+                </div>
+                <p class="current-bid text-xs md:text-2xl text-[#1E2329] font-medium">${{ highest_bid }} Current Bid</p>
+                <p class="auction-bids-end-timer text-xs md:text-2xl text-[#525156] font-medium">{{ auction.total_bids }} Bids  Ends in {{ auction.time_remaining }} ({{ auction.end_time_formatted }}) </p>
+                <div class="grid grid-cols-3 mt-[40px] gap-x-5">
+                    <button id ="bid-option-1" onclick="handleBidOptionClick(1)" data-bid="{{ sell_price|add:1 }}" type="button" class="bid-btn py-3 rounded-md bg-[#2EBD85] text-white md:text-xl font-medium">Bid ${{ sell_price|add:1 }}</button>
+                    <button id ="bid-option-2" onclick="handleBidOptionClick(2)" data-bid="{{ sell_price|add:2 }}" type="button" class="bid-btn py-3 rounded-md bg-[#2EBD85] text-white md:text-xl font-medium">Bid ${{ sell_price|add:2 }}</button>
+                    <button id ="bid-option-3" onclick="handleBidOptionClick(3)" data-bid="{{ sell_price|add:3 }}" type="button" class="bid-btn py-3 rounded-md bg-[#2EBD85] text-white md:text-xl font-medium">Bid ${{ sell_price|add:3 }}</button>
+                </div>
+                <div class="flex flex-row justify-center items-center w-full gap-2 my-[36px]">
+                    <div class="h-[2px] bg-[#1E232933] flex-1"></div>
+                    <span class="text-xs">OR</span>
+                    <div class="h-[2px] bg-[#1E232933] flex-1"></div>
+                </div>
+                {% csrf_token %} 
+                <p class="text-sm md:text-2xl text-[#1E2329] font-medium">Your Max Bid</p>
+                {% component "bid-input" /%}
+                <p  id="min-bid-text" class="text-[10px] md:text-base font-normal text-[#5D5F5F] mt-3">Enter ${{ highest_bid|add:1 }} or more.</p>
+                <!-- <p class="text-sm md:text-2xl text-[#1E2329] font-medium">Your Max Bid</p>
+                <div class="flex items-center mt-2.5 gap-x-5">
+                    <div class="relative flex items-center w-full">
+                        <input min="0" id="bid_amount_input" name="bid_amount" placeholder="Bid Amount" class="shared_bid_input border border-1 border-[#E3E3E3] w-full px-4 py-3 rounded-[3px] lg:text-sm" type="number" />
+                        <p class="absolute left-2 lg:text-sm">$</p>
+                    </div>
+                    <button
+                        id="place-bid-auction-btn"
+                        type="button"
+                        class="bg-primary clear-start w-full py-3 md:text-lg rounded-lg font-semibold max-w-[200px]"
+                        onclick="placeBidAuctionHandler()"
+                        >
+                        Bid
+                    </button>
+                </div>
+ -->
+            </form>
+            <p class="mt-[20px] text-xs md:text-xl font-medium">
+                By selecting <span class="text-[#2EBD85]">Confirm bid</span>, you are committing to buy this item if you are the winning bidder.
+            </p>
+            {% if messages %}
+            <div>
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div class="text-red-500 text-center">{{ message }}</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div id="auction-details-page" class="max-w-[1240px] mx-auto justify-between items-start gap-10 mt-[38px] px-6 lg:px-0">
+    <p id="card-id" class="hidden">{{ card.id }}</p>
+    <p id="auction-id" class="hidden">{{ auction.id }}</p>
+    <p id="highest-sell-value" class="hidden">{{ sell_price }}</p>
+    <div class="m-auto border border-[#DDE2E4] border-1 py-6 relative flex items-center lg:hidden rounded-[3px]">
+        <img src="{{ card.images.small }}" class="w-[150px] h-[210px] m-auto" alt="" />
+        <div class="flex flex-col gap-3 absolute right-6">
+            <a href="{% url 'add-to-collection-page' card.id %}" class="w-[32px] h-[32px] rounded-full bg-[#F5F5F2] grid place-items-center">
+                <img src="{% static 'icons/plus.svg' %}" />
+            </a>
+            <a href="{% url 'set-auction' card.id %}" class="w-[32px] h-[32px] rounded-full bg-[#F5F5F2] grid place-items-center">
+                <img src="{% static 'icons/auction.svg' %}" />
+            </a>
+            <button onclick="toggleFavorite('{{ card.id }}')" class="w-[32px] h-[32px] rounded-full bg-[#F5F5F2] grid place-items-center fav-button">
+                <span class="!w-5 !h-5" data-icon="{% if fav_card %}heart-filled{% else %}heart{% endif %}"></span>
+            </button>
+            <button class="w-[32px] h-[32px] rounded-full bg-[#F5F5F2] grid place-items-center">
+                <img src="{% static 'icons/share.svg' %}" />
+            </button>
+        </div>
+    </div>
+    <div class="flex justify-between items-center mt-5 lg:mt-0">
+        <div>
+            <h2 class="lg:text-3xl font-[600]">{{ card.name_extended }}</h2>
+        </div>
+        <div class="lg:flex gap-x-[10px] hidden">
+            <div class="relative">
+                <button id="open-modal-btn" class="w-[35px] h-[35px] rounded-full bg-[#F5F5F2] grid place-items-center">
+                    <img src="{% static 'icons/plus.svg' %}" />
+                </button>
+                <div id="albums-modal" class="absolute bottom-0 right-0 bg-white z-[10000] overflow-auto shadow-lg rounded-md hidden">
+                    <div id="content" class="p-9 text-[#1E2329] whitespace-nowrap w-[424px]">
+                        <div class="flex justify-between items-center">
+                            <p class="text-2xl font-semibold">Please select the album</p>
+                            <button id="close-albums-modal-btn" class="text-lg w-6 h-6 grid place-items-center"><img src="{% static 'images/cross.svg' %}" /></button>
+                        </div>
+                        <p class="text-[#525156]">Your selected item will be added in album</p>
+                        <div class="grid grid-cols-3 gap-3 mt-3" id="album-container">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <button data-micromodal-trigger="modal-1" class="w-[35px] h-[35px] rounded-full bg-[#F5F5F2] grid place-items-center">
+                    <img src="{% static 'icons/auction.svg' %}" />
+                </button>
+                <div class="modal micromodal-slide" id="modal-1" aria-hidden="true">
+                    <div class="modal__overlay" tabindex="-1">
+                        <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
+                            <div class="p-10 grid place-items-center">
+                                <div class="w-[50px] h-[50px] rounded-full bg-primary grid place-items-center" >
+                                    <img src="{% static 'icons/auction-add.svg' %}" />
+                                </div>
+                                <div class="flex flex-row items-center justify-between mt-4 text-center">
+                                    <div>
+                                        <h3 class="md:text-[28px] font-semibold capitalize">Add Auction</h3>
+                                        <span class="text-xs md:text-xl font-medium text-[#525156]">List your Pokémon card for auction by
+                                            setting a starting price and duration. Let the bidding begin!</span>
+                                    </div>
+                                </div>
+                                <div class="h-[1px] bg-[#1e232933] w-full mt-5 md:mt-6 md:hidden"></div>
+                                <div
+                                    class="m-auto border border-[#DDE2E4] border-1 py-6 relative flex items-center lg:hidden rounded-[3px] w-full mt-4">
+                                    <img src="{{ card.images.small }}" class="w-[150px] h-[210px] m-auto" alt="" />
+                                </div>
+                                <div class="mt-[50px] md:mt-[30px]">
+                                    <form method="post" action="{% url 'set-auction' card.id %}">
+                                        {% csrf_token %}
+                                        <div class="grid gap-y-4">
+                                            {% for field in set_auction_form %}
+                                            {% if field.name == 'start_time' or field.name == 'end_time' %}
+                                            <div class="hidden">
+                                                {{ field }}
+                                            </div>
+                                            {% else %}
+                                            <div class="flex flex-col justify-start items-start w-full md:w-[48%] gap-3">
+                                                <div class="flex flex-row items-center justify-between w-full">
+                                                    <span class="text-sm md:text-base font-semibold capitalize">
+                                                        {{ field.label }}
+                                                    </span>
+                                                </div>
+                                                {{ field }}
+                                            </div>
+                                            {% endif %}
+                                            {% endfor %}
+                                            <div class="flex flex-col justify-start items-start w-full gap-3">
+                                                <div class="flex flex-row items-center justify-between w-full">
+                                                    <span class="text-sm md:text-base font-semibold capitalize">
+                                                        Auction Duration
+                                                    </span>
+                                                </div>
+                                                <div class="flex gap-2 flex-wrap max-w-3xl">
+                                                    <button id="1day" type="button"
+                                                        class="bg-primary font-normal duration-tab px-6 py-2 border border-1 border-[#DDE2E4] rounded grid place-items-center">
+                                                        <p class="text-xs md:text-base whitespace-nowrap">1 Day</p>
+                                                    </button>
+                                                    <button id="3days" type="button"
+                                                        class="duration-tab px-6 py-2 border border-1 border-[#DDE2E4] rounded grid place-items-center">
+                                                        <p class="text-xs md:text-base whitespace-nowrap">3 Days</p>
+                                                    </button>
+                                                    <button id="1week" type="button"
+                                                        class="duration-tab px-6 py-2 border border-1 border-[#DDE2E4] rounded grid place-items-center">
+                                                        <p class="text-xs md:text-base whitespace-nowrap">1 Week</p>
+                                                    </button>
+                                                    <button id="2weeks" type="button"
+                                                        class="duration-tab px-6 py-2 border border-1 border-[#DDE2E4] rounded grid place-items-center">
+                                                        <p class="text-xs md:text-base whitespace-nowrap">2 Weeks</p>
+                                                    </button>
+                                                </div>
+                                                <p id="end-date" class="hidden mt-5 text-xs md:text-base font-medium">End Date</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-x-2 mt-[60px]">
+                                            <input required type="checkbox" />
+                                            <p class="text-xs md:text-base font-medium">Please confirm that you're listing this
+                                                card for auction. You can't cancel, and it'll be sold at the final bid price.</p>
+                                        </div>
+                                        <div
+                                            class="flex flex-row items-center    gap-x-6 mt-9">
+                                            <button type="submit" class="py-3 rounded-md px-9 bg-primary w-full text-center">
+                                                <span class="md:text-xl font-medium text-black capitalize">Create</span>
+                                            </button>
+                                            <button data-micromodal-close
+                                                class="py-3 border-2 rounded-md px-9 w-full bg-[#EAECEF] text-center">
+                                                <span class="md:text-xl font-medium capitalize">cancel</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button onclick="toggleFavorite('{{ card.id }}')" class="w-[35px] h-[35px] rounded-full bg-[#F5F5F2] grid place-items-center fav-button">
+                <span class="!w-5 !h-5" data-icon="{% if fav_card %}heart-filled{% else %}heart{% endif %}"></span>
+            </button>
+            <button class="w-[35px] h-[35px] rounded-full bg-[#F5F5F2] grid place-items-center">
+                <img src="{% static 'icons/share.svg' %}" />
+            </button>
+        </div>
+    </div>
+    <div class="flex items-center justify-between mt-[5px]">
+        <div class="flex justify-between w-[110px] lg:w-[275px] lg:mt-[8px] border border-1 border-[#DDE2E4] p-[6px] lg:px-[13px] lg:py-[6px] rounded-[3px]">
+            <p class="lg:text-base text-[10px]">
+                Graded
+            </p>
+            <div class="flex items-center gap-x-[8px]">
+                <p class="lg:text-base text-[10px]">
+                    {{ card.grade }}
+                </p>
+                <img src="{% static 'icons/line.svg' %}" />
+            </div>
+        </div>
+        <!-- <p class="lg:hidden text-xs text-[#5D5F5F] capitalize">{{ card.number }}</p> -->
+    </div>
+    <div class="grid lg:grid-cols-3 pt-8 lg:gap-x-[40px]">
+        <div class="hidden lg:block w-[270px]">
+            <img src="{{ card.images.small }}" class="w-[270px] h-[379px]" alt="" />
+            <div class="flex flex-col justify-start items-start w-full gap-1.5 pt-3">
+                <div class="flex flex-row justify-between items-center w-full">
+                    <span class="text-xs text-[#5D5F5F] capitalize">set:</span>
+                    <span class="text-xs text-[#5D5F5F] capitalize">{{ card.set.name }}</span>
+                </div>
+                <div class="flex flex-row justify-between items-center w-full">
+                    <span class="text-xs text-[#5D5F5F] capitalize">No:</span>
+                    <span class="text-xs text-[#5D5F5F] capitalize">{{ card.number }}</span>
+                </div>
+                <div class="flex flex-row justify-between items-center w-full">
+                    <span class="text-xs text-[#5D5F5F] capitalize">rarity:</span>
+                    <span class="text-xs text-[#5D5F5F] capitalize">{{ card.rarity }}</span>
+                </div>
+                <div class="flex flex-row justify-between items-center w-full">
+                    <span class="text-xs text-[#5D5F5F] capitalize">sold:</span>
+                    <span class="text-xs text-[#5D5F5F] capitalize">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col">
+            <div class="{% if total_bids == 0 or not placed_bid %}hidden{% endif %}">
+                <div id="highest-bidder" class="bg-[#2EBD8526] px-3 lg:px-5 py-1 w-max {% if placed_bid and not is_top_bidder %}hidden{% endif %}">
+                    <p class="text-[#2EBD85] text-[10px] lg:text-base">You’re the highest bidder</p>
+                </div>
+                <div id="outbid" class="bg-[#FDF2F2] px-3 lg:px-5 py-1 w-max {% if placed_bid and is_top_bidder %}hidden{% endif %}">
+                    <p class="text-[#E2464A] text-[10px] lg:text-base">You have been outbid</p>
+                </div>
+            </div>
+            <p id="highest-bid" class="lg:text-2xl font-[600] mt-2">Highest Bid: ${{ highest_bid }}</p>
+            {% for message in messages %}
+                <p class="{% if message.tags == 'error' %}text-red-600{% endif %}">{{ message }}</p>
+            {% endfor %}
+            {% if not auction_ended %}
+                <p id="total-bids" class="mt-5 text-[#5D5F5F] underline text-xs lg:text-base">{{ auction.auctionbid_set.count }}{{ auction.auctionbid_set.count|pluralize:" bid, bids" }}</p>
+            {% endif %}
+            <div id="auction-ended-show-container" class="hidden">
+                <p class="auction-winner font-semibold text-2xl truncate w-[300px] lg:w-full lg:text-[32px] mt-5 hidden">Winner: @{{ highest_bidder }}</p>
+                <p id="show-if-auction-ended" class="text-[#E2464A] mt-5 hidden" > 
+                    Auction Ended - No Bids
+                </p>
+                <p class="mt-5 text-xs lg:text-2xl">The auction has ended. No more bids can be placed. If you’re the highest bidder, check your purchase details. If not, stay tuned for the next listing.</p>
+                
+                <a id='relist-auction' class="text-xs mt-5 text-[#252C32] underline lg:text-2xl hidden"
+                href="{% url 'relist' auction.id %}">Relist</a>
+            </div>
+
+            {% if auction_ended %}
+                <div>
+                    <p class="auction-winner font-semibold text-2xl truncate w-[300px] lg:w-full lg:text-[32px] mt-5">Winner: @{{ highest_bidder }}</p>
+                    <p class="text-[#E2464A] mt-5">
+                        Auction Ended - No Bids
+                    </p>
+                    <p class="mt-5 text-xs lg:text-2xl">The auction has ended. No more bids can be placed. If you’re the highest bidder, check your purchase details. If not, stay tuned for the next listing.</p>
+                    {% if is_owner %}
+                        <a class="text-xs mt-5 block text-[#252C32] underline lg:text-2xl"
+                        href="{% url 'relist' auction.id %}">Relist</a>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p id="auction-time-remaining" class="hidden">{{ auction.time_remaining }}</p>
+                <p id="auction-end-time" class="hidden">{{ auction.end_time|date:"l, P" }}</p>
+                
+                <p class="auction-bids-end-timer mt-1 text-xs lg:text-base text-[#5D5F5F]">Ends in {{ auction.time_remaining }} - <span>{{ auction.end_time|date:"l, P" }}</span></p>
+                <div id="no-bids-container" class="flex">
+                    {% if not bids %}
+                        <p class="text-2xl text-[#252C32] mt-5">
+                            There are no bids at this time.
+                        </p>
+                    {% endif %}
+                </div>
+                {% if not is_owner %}
+                    <div id="auction-bids-buttons" class="flex">
+                        {% if placed_bid %}
+                        <div class="w-full cursor-pointer rounded-md bg-[#2EBD85] py-3 text-center mt-5" id="auction-place-bid"
+                        onclick="handlePlaceBid()"><span
+                                class="capitalize text-white text-xl lg:text-base font-medium lg:font-bold">Increase bid</span></div>
+                        {% else %}
+                        <div class="w-full cursor-pointer rounded-md bg-[#2EBD85] py-3 text-center mt-5" id="auction-place-bid"
+                        onclick="handlePlaceBid()"><span
+                                class="capitalize text-white text-xl lg:text-base font-medium lg:font-bold" >Place Bid</span></div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                <div id="buy-and-confirm-text-container">
+                    <p class="mt-3 text-xs lg:text-2xl" >
+                        By selecting <span class="text-[#2EBD85] font-semibold">Confirm bid</span>, you are committing to buy this item if you are the winning bidder.
+                    </p>
+                    <a href="{% url 'detail' card.id %}" class="mt-5 flex items-center gap-x-2 text-xs lg:text-2xl text-[#2EBD85] font-semibold">
+                        Buy This Item <span><img src="{% static 'icons/right-arrow.svg' %}" /></span>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        <div class="flex flex-col justify-start items-start mt-8 lg:mt-0 lg:h-[420px] lg:w-[375px]">
+            <div class="flex flex-col justify-start items-start w-full lg:mt-0">
+                <h3 class="lg:text-xl font-[600]">Market Data</h3>
+                <!-- tabs -->
+                <div class="flex gap-10 border-b border-[#EAECEF] w-full px-5 mt-5 justify-center">
+                    <div class="flex flex-col justify-between items-center gap-y-1 lg:h-[36px]">
+                        <a class="tab-link-market font-medium text-xs lg:text-base cursor-pointer"
+                            data-tab="bids">Bids</a>
+                        <img class="tab-indicator-market hidden w-4 lg:w-8" src="{% static 'icons/rectangle.svg' %}" />
+                    </div>
+                    <div class="flex flex-col justify-between items-center gap-y-1 lg:h-[36px]">
+                        <a class="tab-link-market font-medium text-xs lg:text-base cursor-pointer"
+                            data-tab="history">History</a>
+                        <img class="tab-indicator-market hidden w-4 lg:w-8" src="{% static 'icons/rectangle.svg' %}" />
+                    </div>
+                </div>
+            </div>
+            <div class="w-full max-h-[350px] overflow-y-auto mt-3 md:mt-0">
+                <table id="tab-content-bids" class="w-full table-fixed tab-content-market">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="py-1 pl-4 pr-3 text-center text-xs font-semibold text-[#252C32] sm:pl-3">
+                                Price
+                            </th>
+                            <th scope="col" class="px-3 py-1 text-center text-xs font-semibold text-[#252C32]">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white" id="bids-table">
+                        {% if bids %}
+                            {% for bid in bids %}
+                                <tr class="even:bg-gray-50">
+                                    <td
+                                        class="whitespace-nowrap text-center py-1 pl-4 pr-3 text-xs font-medium text-[#E2464A] sm:pl-3">
+                                        ${{ bid.amount|floatformat:-2 }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 text-center py-1 text-xs text-[#252C32]">
+                                        {{ bid.created_at_formatted }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-gray-500 text-sm">
+                                    No bids found
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+
+            <table id="tab-content-history" class="w-full table-fixed tab-content-market">
+                <thead>
+                    <tr>
+                        <th scope="col"
+                            class="py-1 pl-4 pr-3 text-center text-xs font-semibold text-[#252C32] sm:pl-3">
+                            Price
+                        </th>
+                        <th scope="col" class="px-3 py-1 text-center text-xs font-semibold text-[#252C32]">Quantity
+                        </th>
+                        <th scope="col" class="px-3 py-1 text-center text-xs font-semibold text-[#252C32]">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white" id="history-table">
+                    {% if sales %}
+                        {% for sale in sales %}
+                            <tr class="even:bg-gray-50">
+                                <td
+                                    class="whitespace-nowrap text-center py-1 pl-4 pr-3 text-xs font-medium text-[#E2464A] sm:pl-3">
+                                    ${{ sale.price|floatformat:-2 }}
+                                </td>
+                                <td class="whitespace-nowrap text-center px-3 py-1 text-xs text-[#252C32]">
+                                    {{ sale.quantity }}
+                                </td>
+                                <td class="whitespace-nowrap px-3 text-center py-1 text-xs text-[#252C32]">
+                                    {{ sale.created_at_formatted }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center py-4 text-gray-500 text-sm">
+                                No sales found
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+        <!-- <div class="flex flex-col justify-start items-start mt-8 lg:mt-0">
+            <div class="flex flex-col justify-start items-start w-full mt-8 lg:mt-0"> 
+                <h3 class="lg:text-xl font-[600]">Market Data</h3>
+                <div class="flex justify-between gap-10 b w-full border-b border-[#EAECEF] you are committing to buy this item if you are the winning bidder. px-5 mt-5">
+                    <div class="flex flex-col justify-between items-center gap-y-1 lg:h-[36px]">
+                        <a class="tab-link-market font-medium text-xs lg:text-base cursor-pointer" data-tab="bids">Bids</a>
+                        <img class="tab-indicator-market hidden w-4 lg:w-8" src="{% static 'icons/rectangle.svg' %}" />
+                    </div>
+
+                    
+                     <div class="flex flex-col justify-between items-center gap-y-1 lg:h-[36px]">
+                        <a class="tab-link-market font-medium text-xs lg:text-base cursor-pointer" data-tab="history">History</a>
+                        <img class="tab-indicator-market hidden w-4 lg:w-8" src="{% static 'icons/rectangle.svg' %}" />
+                    </div>
+                    
+                </div>
+            </div>
+            <div id="tab-content-bids" class="w-full table-fixed mt-3 md:mt-0">
+                <table  class="w-full table-fixed tab-content-market">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="py-1 pl-4 pr-3 text-center text-xs font-semibold text-[#252C32] sm:pl-3">
+                                Price
+                            </th>
+                            <th scope="col" class="px-3 py-1 text-center text-xs font-semibold text-[#252C32]">Date</th>
+                        </tr>
+                    </thead>
+                </table>
+                <div >
+                    <table id="auction-table-bids" class="w-full table-fixed tab-content-market">
+                        <tbody class="bg-white" id="auction-table-bids">
+                            {% for bid in bids %}
+                            <tr class="even:bg-gray-50">
+                                <td
+                                    class="whitespace-nowrap text-center py-1 pl-4 pr-3 text-xs font-medium text-[#E2464A] sm:pl-3">
+                                    ${{ bid.amount|floatformat:-2 }}
+                                </td>
+                                <td class="whitespace-nowrap px-3 text-center py-1 text-xs text-[#252C32]">
+                                    {{ bid.created_at_formatted }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div> -->
+    </div>
+    {% component "auction-orders" auctions=auctions orders=orders /%}
+</div>
+{% endwith %}
+<script src="{% static 'js/common.js' %}"></script>
+<script src="{% static 'js/auctionDetail.js' %}"></script>
+<script src="{% static 'js/AuctionAndOrdersTable.js' %}"></script>
+<script src="{% static 'js/auctionCountdown.js' %}"></script>
+<script src="{% static 'js/toggleCardFavorite.js' %}"></script>
+<script src="{% static 'js/toastMessage.js' %}"></script>
+<script src="{% static 'js/lineGraph.js' %}"></script>
+<script src="{% static 'js/marketTabs.js' %}"></script>
+<script src="{% static 'js/addToAlbum.js' %}"></script>
+{% endblock %}

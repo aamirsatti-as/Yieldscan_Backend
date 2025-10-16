@@ -1,0 +1,83 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+{% block details %}
+<div class="max-w-[1240px] flex flex-col justify-between px-[25px]">
+    <div class="flex flex-row items-center justify-between w-full">
+        <div>
+            <h3 class="md:text-[32px] font-semibold capitalize">Add Items in Portfolio</h3>
+            <p class="text-xs font-medium text-[#525156] md:hidden">Search and add your items in Portfolio</p>
+        </div>
+    </div>
+    <div class="h-[1px] bg-[#1e232933] w-full mt-5 md:mt-6 md:hidden"></div>
+    <p class="text-sm mt-4" >Which product would you like to add?</p>
+    <form id="search-form">
+        <div id="search-buys"
+            class="search mt-2.5 border-[#DDE2E4] border rounded-md p-3 flex flex-row justify-start items-center gap-2 ">
+            <div class="w-[18px] h-[18px]">
+                <span data-icon="search" class=""></span>
+            </div>
+            <input type="search" name="query" placeholder="Search cards by name"
+                class="w-full border-none outline-none text-xs md:text-base" />
+        </div>
+    </form>
+    <div class="flex-1">
+        <div id="cards-list" class="grid md:grid-cols-2 gap-5 md:gap-[50px] mt-5 max-h-[300px] overflow-auto">
+            {% for card in cards %}
+            <div class="relative">
+                <div class="flex gap-x-[10px] w-full">                           
+                    <div class="flex justify-center">
+                        <div class="grid place-items-center">
+                            <img class="object-contain w-[100px]" src="{{ card.images.small }}" alt="" />
+                        </div>
+                    </div>
+                    <div class="flex flex-col justify-start items-start w-full gap-[5px]">
+                        <h3 class="text-xs text-[#252C32] font-semibold w-1/2">{{ card.name }}</h3>
+                        <p class="text-[#525156] text-[10px] max-w-[120px] truncate overflow-hidden whitespace-nowrap">{{ card.set.name }} - {{ card.number }}</p>
+                        <div class="flex justify-between items-center border border-1 border-[#DDE2E4] rounded-[3px] px-[6px] py-1 w-full max-w-[80px]">
+                            <p class="text-xs">
+                                {{ card.grade }}
+                            </p>
+                            <img src="{% static 'icons/line.svg' %}" />
+                        </div>
+                        <div class="flex gap-x-5 mt-2.5">
+                            <a href="{% url 'add-item-collection' collection_id card.id %}" class="w-20 px-[10px] py-0.5 md:px-8 md:py-3 rounded-sm bg-primary text-center">
+                                <span class="text-xs md:text-base font-medium capitalize">Add</span>
+                            </a>
+                            <a href="{% url 'remove-item-collection' collection_id card.id %}" class="w-20 px-[10px] py-0.5 md:px-8 md:py-3 rounded-sm bg-[#EAECEF] text-center">
+                                <span class="text-xs md:text-base font-medium capitalize">Remove</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>  
+            {% endfor %}
+        </div>
+    </div>
+    <form method="post" class=" mt-[30px]">
+        {% csrf_token %}
+        <div id="selected-card">
+
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 flex-1 mt-4">
+            {% for field in form %}
+            <div class="flex flex-col justify-start items-start w-full md:w-[48%] gap-1.5">
+                <div class="flex flex-row items-center justify-between w-full">
+                    <span class="text-lg font-medium capitalize">{{ field.label }}</span>
+                </div>
+                {{ field }}
+            </div>
+            {% endfor %}
+            <input class="hidden" name="card" required />
+        </div>
+        <div class="flex flex-row md:flex-row-reverse items-center justify-between md:justify-start gap-x-[30px] md:gap-5 mt-9">
+            <button type="submit" class="py-3 rounded-md px-9 bg-primary w-full md:w-max text-center">
+                <span class="md:text-xl font-medium text-black capitalize">submit</span>
+            </button>
+            <a href="{% url 'portfolio' %}" class="py-3 border-2 rounded-md px-9 w-full md:w-max bg-[#EAECEF] text-center">
+                <span class="md:text-xl font-medium capitalize">cancel</span>
+            </a>
+        </div>
+    </form>
+</div>
+<script src="{% static 'js/portfolioForm.js' %}"></script>
+{% endblock %}

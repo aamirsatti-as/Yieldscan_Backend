@@ -1,0 +1,358 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% load component_tags %}
+{% block meta %}
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://64.176.164.234:12000" />
+<meta property="og:site_name" content="Pokemon">
+<meta property="og:title" content="Pokemon Home Page">
+<meta property="og:image:width" content="300">
+<meta property="og:image:height" content="300">
+<meta property="og:image" itemprop="image" content="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=60.jpg">
+<meta property="og:description" content="This is a page about the Pokemon universe. Discover the world of Pokemon and more.">
+
+{% endblock %}
+{% block title %}Pokemon:Home {% endblock %}
+
+{% block content %}
+<div class="w-full mx-auto mt-[20.29px]">
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide banner1 relative  w-full bg-cover bg-center rounded-lg p-6 md:p-12">
+                <!-- Content -->
+                <div class="relative flex items-center md:items-start md:gap-6">
+                <!-- Left Content -->
+                <div class="text-white max-w-sm md:p-6">
+                    <h3 class="text-[10px] md:text-lg font-semibold">MAGIC: THE GATHERING</h3>
+                    <h1 class="text-[18px] md:text-4xl font-bold text-yellow-400">INNISTRAD REMASTERED</h1>
+                    <p class="text-[10px] md:text-base mt-2 text-gray-200">Releases January 24th</p>
+                    <p class="text-[10px] md:text-base mt-4 text-gray-300">
+                    Lorem ipsum dolor sit amet consectetur. Eu quis leo amet sit duis lorem sed laoreet.
+                    </p>
+                    <a href="{% url 'register' %}" class="text-[10px] md:text-base w-max block mt-2.5 md:mt-6 px-4 py-1 md:px-6 md:py-3 bg-[#F6D658] text-[#1E2329] font-bold rounded-md hover:bg-[#F6D658]/90 transition">
+                        Sign Up
+                    </a>
+                </div>
+            
+                <!-- Cards Section -->
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                </div>
+                </div>
+            </div>
+            <div class="swiper-slide banner1 relative  w-full bg-cover bg-center rounded-lg p-6 md:p-12">
+                <!-- Content -->
+                <div class="relative flex items-center md:items-start md:gap-6">
+                <!-- Left Content -->
+                <div class="text-white max-w-sm md:p-6">
+                    <h3 class="text-[10px] md:text-lg font-semibold">MAGIC: THE GATHERING</h3>
+                    <h1 class="text-[18px] md:text-4xl font-bold text-yellow-400">INNISTRAD REMASTERED</h1>
+                    <p class="text-[10px] md:text-base mt-2 text-gray-200">Releases January 24th</p>
+                    <p class="text-[10px] md:text-base mt-4 text-gray-300">
+                    Lorem ipsum dolor sit amet consectetur. Eu quis leo amet sit duis lorem sed laoreet.
+                    </p>
+                    <a href="{% url 'register' %}" class="text-[10px] md:text-base w-max block mt-2.5 md:mt-6 px-4 py-1 md:px-6 md:py-3 bg-[#F6D658] text-[#1E2329] font-bold rounded-md hover:bg-[#F6D658]/90 transition">
+                        Sign Up
+                    </a>
+                </div>
+            
+                <!-- Cards Section -->
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                </div>
+                </div>
+            </div>
+            <div class="swiper-slide banner1 relative  w-full bg-cover bg-center rounded-lg p-6 md:p-12">
+                <!-- Content -->
+                <div class="relative flex items-center md:items-start md:gap-6">
+                <!-- Left Content -->
+                <div class="text-white max-w-sm md:p-6">
+                    <h3 class="text-[10px] md:text-lg font-semibold">MAGIC: THE GATHERING</h3>
+                    <h1 class="text-[18px] md:text-4xl font-bold text-yellow-400">INNISTRAD REMASTERED</h1>
+                    <p class="text-[10px] md:text-base mt-2 text-gray-200">Releases January 24th</p>
+                    <p class="text-[10px] md:text-base mt-4 text-gray-300">
+                    Lorem ipsum dolor sit amet consectetur. Eu quis leo amet sit duis lorem sed laoreet.
+                    </p>
+                    <a href="{% url 'register' %}" class="text-[10px] md:text-base w-max block mt-2.5 md:mt-6 px-4 py-1 md:px-6 md:py-3 bg-[#F6D658] text-[#1E2329] font-bold rounded-md hover:bg-[#F6D658]/90 transition">
+                        Sign Up
+                    </a>
+                </div>
+            
+                <!-- Cards Section -->
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                    <img src="{% static 'images/bannercard-dummy1.png' %}" class="w-[60px] md:w-32 shadow-lg transform transition" alt="Card">
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% if casinos and casinos|length > 0 %}
+<section id="casino-section" class="{% if not casinos %}hidden{% endif %} max-w-[1240px] mx-auto flex flex-col justify-start items-start mt-[50px] gap-[10px] md:gap-[30px] relative">
+    <div class="flex flex-row justify-between items-center w-full px-[30px] md:px-0">
+        <h2 class="capitalize text-base md:text-[28px] font-semibold">Booster Box Sale3</h2>
+        <div class="flex gap-x-2 items-center">
+            <a href="?detail=casino" class="font-normal text-xs md:text-sm">View all</a>
+            <img class="w-2 h-2" src="{% static 'icons/line-right.svg' %}" />
+        </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 md:gap-x-5 mt-[10px] w-full list-container">
+        {% for casino in casinos %}
+        {% with casino.booster_box as box %}
+            <div class="casino-box-mobile md:hidden border border-[#EAECEF] p-3 relative list-item">
+                <a class="absolute w-full h-full z-50 top-0 left-0" href="{% url 'casino-detail' casino.id %}"></a>
+                <div class="grid relativgrid grid-cols-2 md:grid-cols-4 md:gap-x-5 mt-[10px] w-full list-containere gap-x-[10px]">                           
+                    <div class="flex justify-center">
+                        <div class="absolute -right-2 -top-2 rounded-full grid place-content-center">
+                            <button onclick="toggleFavorite('{{ card.id }}')" class="h-3 w-3 card-{{ card.id }}">
+                                    <span 
+                                        {% if card in favorite_cards %}
+                                        data-icon="heart-filled" 
+                                        {% else %}
+                                        data-icon="heart"
+                                        {% endif %}
+                                    ></span>
+                            </button>
+                        </div>
+                        <div class="grid place-items-center">
+                            {% if box.image %}
+                                <img class="object-contain h-[80px] w-[80px]" src="{{ box.image.url }}" alt="" />
+                            {% endif %}
+                        </div>                        
+                    </div>
+                    <div class="flex flex-col justify-start items-start w-full gap-[5px]">
+                        <h3 class="text-xs text-[#252C32] font-semibold max-w-[80px] truncate">{{ box.box_name }}</h3>
+                        <p class="text-[#2EBD85] text-[10px]">Slots: {{ casino.total_participants }}/{{ casino.max_participants }}</p>
+                        <span class="text-sm font-bold text-[#252C32]">${{ casino.entry_fee|floatformat:0 }}</span>
+                    </div>
+                    <div class="col-span-2 mt-[10px] flex justify-between text-[#E2464A] w-full text-center">
+                        <div>
+                            <p class="font-bold">{{ casino.time_till_start_without_days.hours }}</p>
+                            <p class="uppercase text-xs font-semibold">Hours</p>
+                        </div>
+                        <div>
+                            <p class="font-bold">{{ casino.time_till_start_without_days.minutes }}</p>
+                            <p class="uppercase text-xs font-semibold">Minutes</p>
+                        </div>
+                        <div>
+                            <p class="font-bold">{{ casino.time_till_start_without_days.seconds }}</p>
+                            <p class="uppercase text-xs font-semibold">Seconds</p>
+                        </div>
+                    </div>
+                </div>
+            </div>        
+        {% endwith %}
+        {% endfor %} 
+    </div>
+    <div class="hidden md:flex flex-row items-center w-full overflow-hidden">
+        <div class="swiper-button-prev-arrow-casinos border border-[#E3E3E3] grid place-content-center h-12 w-12 rounded-full bg-[#F5F5F2] absolute z-10 -left-7">
+            <div class="h-3 w-3 left-rotate">
+                <span data-icon="arrow" class=""></span>
+            </div>
+        </div>
+        <div class="casinosSwiper flex flex-row justify-between items-center swiper w-full" x-ref="swiperContainer{{ forloop.counter }}">
+            <div id="casino-container" class="swiper-wrapper">
+                {% for casino in casinos %}
+                {% with casino.booster_box as box %}
+                <div class="swiper-slide">
+                    <div class="casino-box-desktop border border-[#EAECEF] rounded-lg relative hidden md:block">
+                        <a class="absolute top-0 left-0 w-full h-full z-50" href="{% url 'casino-detail' casino.id %}"></a>
+                        <div class="flex flex-col p-5">
+                            <div class="flex items-center gap-x-4 px-2">                           
+                                <div class="h-4 w-4 absolute right-2 top-2 bg-white rounded-full grid place-content-center">
+                                    <button onclick="toggleFavorite('{{ card.id }}')" class="h-3 w-3 card-{{ card.id }}">
+                                            <span 
+                                                {% if card in favorite_cards %}
+                                                data-icon="heart-filled" 
+                                                {% else %}
+                                                data-icon="heart"
+                                                {% endif %}
+                                            ></span>
+                                    </button>
+                                </div>
+                                <div class="w-[100px] h-[100px] grid place-items-center">
+                                    {% if box.image %}
+                                        <img class="object-contain h-[80px] w-[80px]" src="{{ box.image.url }}" alt="" />
+                                    {% endif %}
+                                </div>
+                                <div class="flex flex-col justify-start items-start w-full gap-[5px]">
+                                    <h3 class="text-base text-[#252C32] font-medium truncate max-w-[120px]">{{ box.box_name }}</h3>
+                                    <p class="text-[#2EBD85] text-[12px] capitalize">Entry fee</p>
+                                    <span class="text-lg font-bold text-[#252C32]">${{ casino.entry_fee|floatformat:0 }}</span>
+                                </div>
+                            </div>
+                            <div class="bg-[#EAECEF] mt-3 p-1 rounded-sm flex items-center justify-center gap-x-1">
+                                <img class="w-3 h-3 relative -top-0.5" src="{% static 'icons/clock.svg' %}" />
+                                <p class="text-xs truncate">{{ casino.total_participants }} entries - {{ casino.time_remaining_formatted }} left {{ casino.end_time_formatted }}</p>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+                {% endwith %}
+                {% endfor %} 
+            </div>
+        </div>
+        <div class="swiper-button-next-arrow-casinos border border-[#E3E3E3] grid place-content-center h-12 w-12 rounded-full bg-[#F5F5F2] absolute z-10 -right-7">
+            <div class="h-3 w-3 right-rotate">
+                <span data-icon="arrow" class=""></span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% if auctions and auctions|length > 0 %}
+<section id="auction-section" class="{% if not auctions %}hidden{% endif %} max-w-[1240px] mx-auto flex flex-col justify-start items-start mt-[50px] gap-[10px] md:gap-[30px] relative">
+    <div class="flex flex-row justify-between items-center w-full px-[30px] md:px-0">
+        <h2 class="capitalize text-base md:text-[28px] font-semibold">Auctions</h2>
+        <div class="flex gap-x-2 items-center">
+            <a href="?detail=auction" class="font-normal text-xs md:text-sm">View all</a>
+            <img class="w-2 h-2" src="{% static 'icons/line-right.svg' %}" />
+        </div>
+    </div>
+    <div class="md:hidden grid grid-cols-2 w-full list-container">
+        {% for auction in auctions %}
+        {% with auction.card_entity.card as card %}
+        <div class="auction-box-mobile md:hidden border border-[#EAECEF] p-3 relative list-item">
+            <a class="absolute w-full h-full z-10 top-0 left-0" href="{% url 'auction-detail' auction.id %}"></a>
+            <div class="grid grid-cols-2 relative gap-x-[10px] w-full">                           
+                <div class="flex justify-center">
+                    <div class="absolute -right-2 -top-2 rounded-full grid place-content-center z-50">
+                        <button onclick="toggleFavorite('{{ card.id }}')" class="h-3 w-3 card-{{ card.id }}">
+                                <span 
+                                    {% if card in favorite_cards %}
+                                    data-icon="heart-filled" 
+                                    {% else %}
+                                    data-icon="heart"
+                                    {% endif %}
+                                ></span>
+                        </button>
+                    </div>
+                    <div class="grid place-items-center">
+                        <img class="object-contain h-[102px] w-[74px]" src="{{ card.images.small }}" alt="" />
+                    </div>
+                </div>
+                <div class="flex flex-col justify-start items-start w-full gap-[5px]">
+                    <h3 class="text-xs text-[#252C32] font-semibold max-w-[80px] truncate">{{ card.name }}</h3>
+                    <p class="text-[#525156] text-[10px] max-w-[80px] truncate overflow-hidden whitespace-nowrap">{{ card.set.name }} - {{ card.number }}</p>
+                    <div class="text-[#2EBD85] text-[10px] capitalize font-normal truncate text-xs"> Highest Bid</div>
+                    <span data-auction-id="{{ auction.id }}" class="highest-bid-auction text-sm font-bold text-[#252C32] block truncate w-full">${{ auction.highest_bid|floatformat:0 }}</span>
+                    {% if card.grade is not None %}
+                        <div class="flex justify-between items-center border border-1 border-[#DDE2E4] rounded-[3px] px-[6px] py-1 w-full">
+                            <p class="text-xs">
+                                {{ card.grade }}
+                            </p>
+                            <img src="{% static 'icons/line.svg' %}" />
+                        </div>
+                        {% else %}
+                        <p class="text-xs">
+                            -
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>  
+        {% endwith %}
+        {% endfor %}
+    </div>
+    <div class="hidden md:flex flex-row items-center w-full overflow-hidden">
+        <div class="swiper-button-prev-arrow-auctions border border-[#E3E3E3] grid place-content-center h-12 w-12 rounded-full bg-[#F5F5F2] absolute z-10 -left-7">
+            <div class="h-3 w-3 left-rotate">
+                <span data-icon="arrow" class=""></span>
+            </div>
+        </div>
+        <div class="auctionsSwiper flex-1 flex flex-row justify-between items-center swiper w-full" x-ref="swiperContainer{{ forloop.counter }}">
+            <div id="auction-container" class="swiper-wrapper">
+                {% for auction in auctions %}
+                {% with auction.card_entity.card as card %}
+                <div class="swiper-slide">
+                    {% component "auction-card" card="{{ card }}" auction="{{ auction }}" / %}
+                </div>
+                {% endwith %}
+                {% endfor %} 
+            </div>
+        </div>
+        <div class="swiper-button-next-arrow-auctions border border-[#E3E3E3] grid place-content-center h-12 w-12 rounded-full bg-[#F5F5F2] absolute z-10 -right-7">
+            <div class="h-3 w-3 right-rotate">
+                <span data-icon="arrow" class=""></span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% for category,details in cards_by_category.items %}
+{% if details.cards|length > 0 %} 
+<section x-data="{ swiper: null }" x-init="swiper = new Swiper($refs.swiperContainer{{ forloop.counter }}, {
+    loop: true,
+    slidesPerView: 2,
+    spaceBetween: 20,
+    breakpoints: {
+        768: {
+            slidesPerView: 3,
+        },
+        1024: {
+          slidesPerView: 4,
+        }
+      },
+    navigation: { nextEl: '.swiper-button-next-arrow-{{ details.id }}', prevEl: '.swiper-button-prev-arrow-{{ details.id }}' }
+  })" class="max-w-[1240px] mx-auto flex flex-col justify-start items-start mt-[50px] gap-[10px] md:gap-[30px] relative cursor-pointer">
+    <p id="raw_grade" class="hidden">{{ raw_grade }}</p>
+    <div class="flex flex-row justify-between items-center w-full px-[30px] md:px-0">
+        <h2 class="capitalize text-base md:text-[28px] font-semibold">{{ category }}</h2>
+        <div class="flex gap-x-2 items-center">
+            <a href="?category={{ details.id }}" class="font-normal text-xs md:text-sm">View all</a>
+            <img class="w-2 h-2" src="{% static 'icons/line-right.svg' %}" />
+        </div>
+    </div>
+    <div class="grid grid-cols-2 w-full list-container md:hidden">
+        {% for card in details.cards %}
+            {% component "card" card=card classes="list-item" / %}
+        {% endfor %}
+    </div>
+    <div class="hidden md:flex flex-row items-center w-full overflow-x-hidden">
+        <button class="swiper-button-prev-arrow-{{ details.id }} border border-[#E3E3E3] grid place-content-center h-12 w-12 rounded-full bg-[#F5F5F2] absolute z-10 -left-7">
+            <div class="h-3 w-3 left-rotate">
+                <span data-icon="arrow" class=""></span>
+            </div>
+        </button>
+        <div class="flex-1 flex flex-row justify-between items-center w-full" x-ref="swiperContainer{{ forloop.counter }}">
+            <div class="swiper-wrapper">
+                {% for card in details.cards %}
+                <div class="swiper-slide">
+                    {% component "card" card=card classes="" / %}
+                </div>
+                {% endfor %} 
+            </div>
+        </div>
+        <div class="swiper-button-next-arrow-{{ details.id }} border border-[#E3E3E3] grid place-content-center h-12 w-12 rounded-full bg-[#F5F5F2] absolute z-10 -right-7">
+            <div class="h-3 w-3 right-rotate">
+                <span data-icon="arrow" class=""></span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endfor %} 
+<script src="{% static 'js/home.js' %}"></script>
+<script src="{% static 'js/dataUpdatesHomePage.js' %}"></script>
+<script src="{% static 'js/toggleCardFavorite.js' %}"></script>
+<script src="{% static 'js/cardGradeSelector.js' %}"></script>
+{% endblock %}

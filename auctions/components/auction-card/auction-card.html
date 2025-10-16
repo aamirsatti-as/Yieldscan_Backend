@@ -1,0 +1,44 @@
+{% load static %}
+
+<div class="auction-box-desktop border border-[#EAECEF] p-4 relative md:rounded-lg">
+    <a class="absolute w-full h-full z-10 top-0 left-0" href="{% url 'auction-detail' auction.id %}"></a>
+    <div class="grid grid-cols-2 relative gap-x-[10px] w-full">
+        <div class="flex justify-center">
+            <div class="absolute -right-2 -top-2 rounded-full grid place-content-center z-50">
+                <button onclick="toggleFavorite('{{ card.id }}')" class="h-3 w-3 card-{{ card.id }}">
+                    <span {% if card in favorite_cards %} data-icon="heart-filled" {% else %} data-icon="heart" {% endif %}></span>
+                </button>
+            </div>
+            <div class="grid place-items-center">
+                <img class="object-contain h-[140px] w-[100px]" src="{{ card.images.small }}" alt="" />
+            </div>
+        </div>
+        <div class="flex flex-col justify-center items-start w-full">
+            <h3 class="text-xs md:text-base md:text-[#252C32] font-bold md:w-1/2">{{ card.name }}</h3>
+            <p class="text-[#525156] text-[10px] md:text-base max-w-[80px] md:max-w-[100px] truncate overflow-hidden whitespace-nowrap">{{ card.set.name }} - {{ card.number }}</p>
+            <!-- <span class="text-[18px] font-bold text-[#252C32]"><span
+                    class="text-[#2EBD85] text-[10px] capitalize font-normal truncate"  id="highest-bid-{{ auction.id }}" >Highest Bid</span><br />${{ auction.highest_bid|floatformat:0|floatformat:0 }}</span> -->
+            <div class="text-[#2EBD85] text-[10px] capitalize font-normal truncate text-xs"> Highest Bid</div>
+            <span 
+                data-auction-id="{{ auction.id }}"
+                class="highest-bid-auction text-sm font-bold text-[#252C32] block truncate w-full">
+                ${{ auction.highest_bid|floatformat:0 }}
+                
+            </span>
+
+            {% if card.grade is not None %}
+            <div
+                class="flex justify-between items-center border border-1 border-[#DDE2E4] rounded-[3px] px-[6px] py-1 w-full mt-1.5">
+                <p class="text-xs">
+                    {{ card.grade }}
+                </p>
+                <img src="{% static 'icons/line.svg' %}" />
+            </div>
+            {% else %}
+            <p class="text-xs">
+                -
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</div>

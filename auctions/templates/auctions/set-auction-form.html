@@ -1,0 +1,158 @@
+{% extends 'base.html' %} 
+{% block content %}
+<div class="mt-[62px] flex flex-col w-full md:bg-white md:border-2 md:border-[#DDE2E4] md:rounded-lg md:p-12 px-6 md:px-0">
+    <div class="flex flex-row items-center justify-between">
+        <div>
+            <h3 class="md:text-[32px] font-semibold capitalize">Add Auction</h3>
+            <span class="text-xs md:text-xl font-medium text-[#525156]">List your Pokémon card for auction by setting a starting price and duration. Let the bidding begin!</span>
+        </div>
+    </div>
+    <div class="h-[1px] bg-[#1e232933] w-full mt-5 md:mt-6 md:hidden"></div>
+    <div class="m-auto border border-[#DDE2E4] border-1 py-6 relative flex items-center lg:hidden rounded-[3px] w-full mt-4">
+        <img src="{{ card.images.small }}" class="w-[150px] h-[210px] m-auto" alt="" />
+    </div>
+    <div class="mt-[50px] md:mt-[30px]">
+        <form method="post">
+            {% csrf_token %}
+            <div class="grid gap-y-4">
+                {% for field in form %}
+                {% if field.name == 'start_time' or field.name == 'end_time' %}
+                    <div class="hidden">
+                        {{ field }}
+                    </div>
+                {% else %}
+                <div class="flex flex-col justify-start items-start w-full md:w-[48%] gap-3">
+                    <div class="flex flex-row items-center justify-between w-full">
+                        <span class="text-sm md:text-base font-semibold capitalize">
+                            {{ field.label }}
+                        </span>
+                    </div>
+                    {{ field }}
+                </div>
+                {% endif %}
+                {% endfor %}
+                <div class="flex flex-col justify-start items-start w-full gap-3">
+                    <div class="flex flex-row items-center justify-between w-full">
+                        <span class="text-sm md:text-base font-semibold capitalize">
+                            Auction Duration
+                        </span>
+                    </div>
+                    <div class="flex gap-2 flex-wrap max-w-3xl">
+                        <button id="1day" type="button" class="bg-primary font-normal duration-tab px-7 py-3 border border-1 border-[#DDE2E4] rounded grid place-items-center">
+                            <p class="text-xs md:text-base  whitespace-nowrap">1 Day</p>
+                        </button>
+                        <button id="3days" type="button" class="duration-tab px-7 py-3 border border-1 border-[#DDE2E4] rounded grid place-items-center">
+                            <p class="text-xs md:text-base  whitespace-nowrap">3 Days</p>
+                        </button>
+                        <button id="1week" type="button" class="duration-tab px-7 py-3 border border-1 border-[#DDE2E4] rounded grid place-items-center">
+                            <p class="text-xs md:text-base  whitespace-nowrap">1 Week</p>
+                        </button>
+                        <button id="2weeks" type="button" class="duration-tab px-7 py-3 border border-1 border-[#DDE2E4] rounded grid place-items-center">
+                            <p class="text-xs md:text-base  whitespace-nowrap">2 Weeks</p>
+                        </button>
+                    </div>
+                    <p id="end-date" class="hidden mt-5 text-xs md:text-base font-medium">End Date</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-x-2 mt-[60px]">
+                <input required type="checkbox" />
+                <p class="text-xs md:text-base font-medium">Please confirm that you're listing this card for auction. You can't cancel, and it'll be sold at the final bid price.</p>
+            </div>
+            <div class="flex flex-row md:flex-row-reverse items-center justify-between md:justify-start gap-x-[30px] md:gap-5 mt-9">
+                <button type="submit" class="py-3 rounded-md px-9 bg-primary w-full md:w-max text-center">
+                    <span class="md:text-xl font-medium text-black capitalize">Create</span>
+                </button>
+                <a href="{% url 'detail' card.id %}" class="py-3 border-2 rounded-md px-9 w-full md:w-max bg-[#EAECEF] text-center">
+                    <span class="md:text-xl font-medium capitalize">cancel</span>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="flex flex-col gap-4 p-20 m-auto w-max">
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <div class="text-red-500 text-center">{{ message }}</div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+<script>
+    const initialTab = '1day';
+    const tabButtons = document.querySelectorAll("button.duration-tab");
+    const endDateElement = document.getElementById("end-date");
+    const startDateInput = document.getElementById("id_start_time");
+    const endDateInput = document.getElementById("id_end_time");
+
+    function formatDisplayDate(date) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+        const year = String(date.getFullYear()).slice(-2); // Get last 2 digits of year
+        return `${day}/${month}/${year}`;
+    }
+
+    function formatDateTime(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
+    function calculateEndDate(days) {
+        const today = new Date();
+        today.setDate(today.getDate() + days);
+        return {
+            display: formatDisplayDate(today),
+            send: formatDateTime(today)
+        };
+    }
+
+    function activateTab(selectedId) {
+        tabButtons.forEach(button => {
+            if (button.id === selectedId) {
+                button.classList.add("bg-primary");
+            } else {
+                button.classList.remove("bg-primary");
+            }
+        });
+
+        let days;
+        switch (selectedId) {
+            case '1day': days = 1; break;
+            case '3days': days = 3; break;
+            case '1week': days = 7; break;
+            case '2weeks': days = 14; break;
+        }
+
+        if (days) {
+            const now = new Date();
+            const formattedNow = formatDateTime(now);
+            const { display, send } = calculateEndDate(days);
+
+            // Set input values
+            startDateInput.value = formattedNow;
+            endDateInput.value = send;
+
+            // Update and show the formatted end date
+            endDateElement.textContent = `End Date: ${display}`;
+            endDateElement.classList.remove("hidden");
+        }
+    }
+
+    // Initialize with the default tab
+    activateTab(initialTab);
+
+    // Add event listeners
+    tabButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            activateTab(button.id);
+        });
+    });
+</script>
+{% endblock %}

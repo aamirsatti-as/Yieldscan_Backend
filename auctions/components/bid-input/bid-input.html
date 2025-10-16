@@ -1,0 +1,15 @@
+{% load static %}
+<div class="flex items-center mt-2.5 gap-x-5">
+    <div class="relative flex items-center w-full">
+        <input min="1" id="bid_amount_input" name="bid_amount" placeholder="Bid Amount" class="shared_bid_input border border-1 border-[#E3E3E3] w-full px-4 py-3 rounded-[3px] lg:text-sm" type="number" />
+        <p class="absolute left-2 lg:text-sm">$</p>
+    </div>
+    <button
+        id="place-bid-auction-btn"
+        type="button"
+        class="bg-primary clear-start w-full py-3 md:text-lg rounded-lg font-semibold max-w-[200px]"
+        onclick="placeBidAuctionHandler()"
+        >
+        Bid
+    </button>
+</div>

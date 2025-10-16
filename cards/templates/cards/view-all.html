@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% load static %}
+{% load component_tags %}
+{% block content %}
+<div class="max-w-[1240px] mx-auto flex flex-col justify-start items-start mt-[70px] gap-[30px] relative">
+    <p id="raw_grade" class="hidden">{{ raw_grade }}</p>
+    <div id="search-results" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 w-full md:gap-4">
+        {% for card in cards %}
+            {% component "card" card=card classes="" / %}
+        {% endfor %}
+        {% for auction in auctions %}
+        {% with auction.card_entity.card as card %}
+        <div class="auction-box-desktop border border-[#EAECEF] p-4 relative md:rounded-lg cursor-pointer" onclick="handleAuctionClick({{auction.id}})">
+            <!-- <a class="absolute w-full h-full z-10 top-0 left-0" href="{% url 'auction-detail' auction.id %}"></a> -->
+            <div class="grid grid-cols-2 relative gap-x-[10px] w-full">
+                <div class="flex justify-center">
+                    <div class="absolute -right-2 -top-2 rounded-full grid place-content-center z-50">
+                        <button onclick="toggleFavorite('{{ card.id }}')" class="h-3 w-3 card-{{ card.id }}">
+                            <span {% if card in favorite_cards %} data-icon="heart-filled" {% else %} data-icon="heart" {% endif %}></span>
+                        </button>
+                    </div>
+                    <div class="grid place-items-center">
+                        <img class="object-contain h-[140px] w-[100px]" src="{{ card.images.small }}" alt="" />
+                    </div>
+                </div>
+                <div class="flex flex-col justify-center items-start w-full">
+                    <h3 class="text-xs md:text-base md:text-[#252C32] font-bold md:w-1/2">{{ card.name }}</h3>
+                    <p class="text-[#525156] text-[10px] md:text-base max-w-[80px] md:max-w-[100px] truncate overflow-hidden whitespace-nowrap">{{ card.set.name }} - {{ card.number }}</p>
+                    <span class="text-[18px] font-bold text-[#252C32]"><span
+                            class="text-[#2EBD85] text-[10px] capitalize font-normal truncate">Highest Bid</span><br />${{ auction.highest_bid|floatformat:0|floatformat:0 }}</span>
+                    {% if card.grade is not None %}
+                    <div
+                        class="flex justify-between items-center border border-1 border-[#DDE2E4] rounded-[3px] px-[6px] py-1 w-full mt-1.5">
+                        <p class="text-xs">
+                            {{ card.grade }}
+                        </p>
+                        <img src="{% static 'icons/line.svg' %}" />
+                    </div>
+                    {% else %}
+                    <p class="text-xs">
+                        -
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- <div class="auction-box-mobile md:hidden border border-[#EAECEF] p-3 relative">
+            <a class="absolute w-full h-full z-10 top-0 left-0" href="{% url 'auction-detail' auction.id %}"></a>
+            <div class="grid grid-cols-2 relative gap-x-[10px] w-full">                           
+                <div class="flex justify-center">
+                    <div class="absolute -right-2 -top-2 rounded-full grid place-content-center z-50">
+                        <button onclick="toggleFavorite('{{ card.id }}')" class="h-3 w-3 card-{{ card.id }}">
+                                <span 
+                                    {% if card in favorite_cards %}
+                                    data-icon="heart-filled" 
+                                    {% else %}
+                                    data-icon="heart"
+                                    {% endif %}
+                                ></span>
+                        </button>
+                    </div>
+                    <div class="grid place-items-center">
+                        <img class="object-contain h-[102px] w-[74px]" src="{{ card.images.small }}" alt="" />
+                    </div>
+                </div>
+                <div class="flex flex-col justify-start items-start w-full gap-[5px]">
+                    <h3 class="text-xs text-[#252C32] font-semibold max-w-[80px] truncate">{{ card.name }}</h3>
+                    <p class="text-[#525156] text-[10px] max-w-[80px] truncate overflow-hidden whitespace-nowrap">{{ card.set.name }} - {{ card.number }}</p>
+                    <span class="text-sm font-bold text-[#252C32] block truncate w-full">${{ auction.highest_bid|floatformat:0 }}<span class="text-[#2EBD85] text-[10px] capitalize font-normal truncate"> (Highest Bid)</span></span>
+                    {% if card.grade is not None %}
+                    <div class="flex justify-between items-center border border-1 border-[#DDE2E4] rounded-[3px] px-[6px] py-1 w-full">
+                        <p class="text-xs">
+                            {{ card.grade }}
+                        </p>
+                        <img src="{% static 'icons/line.svg' %}" />
+                    </div>
+                    {% else %}
+                    <p class="text-xs">
+                        -
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>   -->
+        {% endwith %}
+        {% endfor %}
+        {% for casino in casinos %}
+        {% with casino.booster_box as box %}
+        <div class="casino-box-mobile md:hidden border border-[#EAECEF] p-3 relative">
+            <a class="absolute w-full h-full z-50 top-0 left-0" href="{% url 'casino-detail' casino.id %}"></a>
+            <div class="grid relative gap-x-[10px] w-full">
+                <div class="flex justify-center">
+                    <div class="absolute -right-2 -top-2 rounded-full grid place-content-center">
+                        <button onclick="toggleFavorite('{{ card.id }}')" class="h-3 w-3 card-{{ card.id }}">
+                            <span {% if card in favorite_cards %} data-icon="heart-filled" {% else %} data-icon="heart"
+                                {% endif %}></span>
+                        </button>
+                    </div>
+                    <div class="grid place-items-center">
+                        {% if box.image %}
+                            <img class="object-contain h-[80px] w-[80px]" src="{{ box.image.url }}" alt="" />
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="flex flex-col justify-start items-start w-full gap-[5px]">
+                    <h3 class="text-xs text-[#252C32] font-semibold max-w-[80px] truncate">{{ box.box_name }}</h3>
+                    <p class="text-[#2EBD85] text-[10px]">Slots: {{ casino.total_participants }}/{{
+                        casino.max_participants }}</p>
+                    <span class="text-sm font-bold text-[#252C32]">${{ casino.entry_fee|floatformat:0 }}</span>
+                </div>
+                <div class="col-span-2 mt-[10px] flex justify-between text-[#E2464A] w-full text-center">
+                    <div>
+                        <p class="font-bold">{{ casino.time_till_start_without_days.hours }}</p>
+                        <p class="uppercase text-xs font-semibold">Hours</p>
+                    </div>
+                    <div>
+                        <p class="font-bold">{{ casino.time_till_start_without_days.minutes }}</p>
+                        <p class="uppercase text-xs font-semibold">Minutes</p>
+                    </div>
+                    <div>
+                        <p class="font-bold">{{ casino.time_till_start_without_days.seconds }}</p>
+                        <p class="uppercase text-xs font-semibold">Seconds</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="casino-box-desktop border border-[#EAECEF] rounded-lg relative hidden md:block">
+            <a class="absolute top-0 left-0 w-full h-full z-50" href="{% url 'casino-detail' casino.id %}"></a>
+            <div class="flex flex-col p-5">
+                <div class="flex items-center gap-x-4 px-2">
+                    <div class="h-4 w-4 absolute right-2 top-2 bg-white rounded-full grid place-content-center">
+                        <button onclick="toggleFavorite('{{ card.id }}')" class="h-3 w-3 card-{{ card.id }}">
+                            <span {% if card in favorite_cards %} data-icon="heart-filled" {% else %} data-icon="heart"
+                                {% endif %}></span>
+                        </button>
+                    </div>
+                    <div class="w-[100px] h-[100px] grid place-items-center">
+                        {% if box.image %}
+                            <img src="{{ box.image.url }}" alt="" />
+                        {% endif %}
+                    </div>
+                    <div class="flex flex-col justify-start items-start w-full gap-[5px]">
+                        <h3 class="text-base text-[#252C32] font-medium truncate max-w-[120px]">{{ box.box_name }}</h3>
+                        <p class="text-[#2EBD85] text-[10px] capitalize">Entry fee</p>
+                        <span class="text-lg font-bold text-[#252C32]">${{ casino.entry_fee|floatformat:0 }}</span>
+                    </div>
+                </div>
+                <div class="bg-[#EAECEF] mt-3 p-1 rounded-sm flex items-center justify-center gap-x-1">
+                    <img class="w-3 h-3 relative -top-0.5" src="{% static 'icons/clock.svg' %}" />
+                    <p class="text-xs truncate">{{ casino.total_participants }} entries - {{
+                        casino.time_remaining_formatted }} left ({{ casino.end_time_formatted }})</p>
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+    </div>
+    {% with pagination.params as params %}
+    <div id="pagination" class="md:hidden flex justify-center w-full mt-4 mb-8 items-center gap-2">
+        {% if pagination.has_prev %}
+        <a href="?page={{ pagination.page|add:-1 }}&limit={{ pagination.limit }}&{{ params }}"
+            class="w-3 h-3 rounded-full border border-1"><img src="{% static 'icons/arrow-left.svg' %}" /></a>
+        {% else %}
+        <a class="w-3 h-3 rounded-full border border-1 border-[#E4E7E9]"><img
+                src="{% static 'icons/arrow-left.svg' %}" /></a>
+        {% endif %}
+        {% for num in pagination.page_range %}
+        {% if num == pagination.page %}
+        <div class="w-5 h-5 rounded-full bg-[#F6D658] grid place-items-center">
+            <p class="text-xs font-semibold">{{ num }}</p>
+        </div>
+        {% else %}
+        <a href="?page={{ num }}&limit={{ pagination.limit }}&{{ params }}"
+            class="border-[#E4E7E9] border border-1 w-5 h-5 rounded-full grid place-items-center">
+            <p class="text-xs font-normal">{{ num }}</p>
+        </a>
+        {% endif %}
+        {% endfor %}
+        {% if pagination.has_next %}
+        <a href="?page={{ pagination.page|add:1 }}&limit={{ pagination.limit }}&{{ params }}"
+            class="w-3 h-3 rounded-full border border-1"><img src="{% static 'icons/arrow-right.svg' %}" /></a>
+        {% else %}
+        <a class="w-3 h-3 rounded-full border border-1 border-[#E4E7E9]"><img
+                src="{% static 'icons/arrow-right.svg' %}" /></a>
+        {% endif %}
+    </div>
+    {% endwith %}
+    {% with pagination.params as params %}
+    <div id="pagination" class="hidden md:flex justify-center w-full mt-4 mb-8 items-center gap-2">
+        {% if pagination.has_prev %}
+        <a href="?page={{ pagination.page|add:-1 }}&limit={{ pagination.limit }}&{{ params }}"
+            class="w-5 h-5 rounded-full border border-1 flex"><img src="{% static 'icons/arrow-left.svg' %}" /></a>
+        {% else %}
+        <a class="w-5 h-5 rounded-full border border-1 border-[#E4E7E9] flex"><img
+                src="{% static 'icons/arrow-left.svg' %}" /></a>
+        {% endif %}
+        {% for num in pagination.page_range %}
+        {% if num == pagination.page %}
+        <div class="w-8 h-8 rounded-full bg-[#F6D658] grid place-items-center">
+            <p class="text-xs font-semibold">{{ num }}</p>
+        </div>
+        {% else %}
+        <a href="?page={{ num }}&limit={{ pagination.limit }}&{{ params }}"
+            class="border-[#E4E7E9] border border-1 w-8 h-8 rounded-full grid place-items-center">
+            <p class="text-xs font-normal">{{ num }}</p>
+        </a>
+        {% endif %}
+        {% endfor %}
+        {% if pagination.has_next %}
+        <a href="?page={{ pagination.page|add:1 }}&limit={{ pagination.limit }}&{{ params }}"
+            class="w-5 h-5 rounded-full border border-1 flex"><img src="{% static 'icons/arrow-right.svg' %}" /></a>
+        {% else %}
+        <a class="w-5 h-5 rounded-full border border-1 border-[#E4E7E9] flex"><img
+                src="{% static 'icons/arrow-right.svg' %}" /></a>
+        {% endif %}
+    </div>
+</div>
+{% endwith %}
+</div>
+<script src="{% static 'js/toggleCardFavorite.js' %}"></script>
+<script src="{% static 'js/cardGradeSelector.js' %}"></script>
+{% endblock %}

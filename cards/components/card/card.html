@@ -1,0 +1,52 @@
+<div onclick="handleCardClick(this)" data-card-id="{{ card.id }}" class="cursor-pointer card-box-responsive card-box-desktop border border-[#EAECEF] p-3 md:p-4 relative md:rounded-lg {{ classes }}">
+    <div class="flex justify-between">
+        <div class="grid grid-cols-5 gap-x-[10px] md:gap-x-4">
+            <div class="flex justify-start items-center col-span-2">
+                <img class="object-contain h-[102px] w-[74px] md:h-[140px] md:w-[100px]" src="{{ card.images.small }}" alt="" />
+            </div>
+            <div class="flex flex-col py-[6px] gap-y-1 md:gap-y-[6px] col-span-3">
+                <h3 class="text-xs md:text-base md:text-[#252C32] truncate font-semibold md:font-bold md:w-1/2">{{ card.name }}</h3>
+                <p class="text-[#525156] text-[10px] md:text-base truncate">
+                    {{ card.set.name }} - {{ card.number }}
+                </p>
+                {% if card.entities %}
+                {% for entity in card.entities %}
+                <span data-card="{{ card.id }}" data-grade="{{ entity.grade__id }}"
+                    class="leading-normal w-full truncate grade-item {% if not card.highest_grade == entity.grade__id %}hidden{% endif %} block">
+                    <span class="text-sm md:text-[18px] font-bold text-[#252C32] whitespace-nowrap">
+                        <span class="text-[#2EBD85] text-[12px] md:text-[18px] capitalize font-normal truncate hidden md:block">
+                            Lowest Ask
+                        </span>
+                        <span>${{ entity.lowest_ask_price|floatformat:0 }}</span>
+                        <span class="text-[#2EBD85] text-[10px] capitalize font-normal truncate md:hidden"> (Lowest Ask)</span>
+                    </span>
+                </span>
+                {% endfor %}
+                {% else %}
+                -
+                {% endif %}
+                {% if card.entities %}
+                <select name="grade" data-card="{{ card.id }}"
+                    class="grade-select m-0 text-xs relative z-50 flex justify-between items-center border border-1 border-[#DDE2E4] rounded-[3px] px-[6px] py-1 w-full mt-1.5 bg-white">
+                    {% for entity in card.entities %}
+                    <option id="{{ entity.grade__id }}" value="{{ entity.grade__id }}">
+                        {{ entity.grade__value }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% endif %}
+            </div>
+        </div>
+        <div class="rounded-full z-50 flex justify-end">
+            {% if is_favorite %}
+                <button onclick="toggleFavorite('{{ card.id }}')" class="h-3 w-3 card-{{ card.id }}">
+                    <span data-icon="heart-filled"></span>
+                </button>
+            {% else %}
+                <button onclick="toggleFavorite('{{ card.id }}')" class="h-3 w-3 card-{{ card.id }}">
+                    <span {% if card in favorite_cards %} data-icon="heart-filled" {% else %} data-icon="heart" {% endif %}></span>
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,61 @@
+{% extends 'base.html' %} 
+{% block content %}
+<div class="mt-[62px] flex flex-col w-full md:bg-white md:border-2 md:border-[#DDE2E4] md:rounded-lg md:p-12 px-6 md:px-0">
+    <div class="flex flex-col gap-4 border border-[#DDE2E4] md:border-none rounded-lg p-6">
+        <form method="post">
+            <p class="md:text-[28px] capitalize font-semibold">Place Bid</p>
+            <p class="current-bid text-xs md:text-2xl text-[#1E2329] font-medium">${{ highest_bid }} Current Bid</p>
+            <p class="text-xs md:text-2xl text-[#525156] font-medium">{{ auction.total_bids }} Bids  Ends in {{ auction.time_remaining }} ({{ auction.end_time_formatted }}) </p>
+            <div class="grid grid-cols-3 mt-[60px] gap-x-5">
+                <button data-bid="{{ highest_bid|add:1 }}" type="button" class="bid-btn py-3 rounded-md bg-[#2EBD85] text-white md:text-xl font-medium">Bid ${{ highest_bid|add:1 }}</button>
+                <button data-bid="{{ highest_bid|add:2 }}" type="button" class="bid-btn py-3 rounded-md bg-[#2EBD85] text-white md:text-xl font-medium">Bid ${{ highest_bid|add:2 }}</button>
+                <button data-bid="{{ highest_bid|add:3 }}" type="button" class="bid-btn py-3 rounded-md bg-[#2EBD85] text-white md:text-xl font-medium">Bid ${{ highest_bid|add:3 }}</button>
+            </div>
+            <div class="flex flex-row justify-center items-center w-full gap-2 my-[36px]">
+                <div class="h-[2px] bg-[#1E232933] flex-1"></div>
+                <span class="text-xs">OR</span>
+                <div class="h-[2px] bg-[#1E232933] flex-1"></div>
+            </div>
+            {% csrf_token %} 
+            <p class="text-sm md:text-2xl text-[#1E2329] font-medium">Your Max Bid</p>
+            <div class="flex items-center mt-2.5 gap-x-5">
+                {{ form.bid_amount }}
+                <button
+                    type="submit"
+                    class="bg-primary clear-start w-full py-3 md:text-lg rounded-lg font-semibold max-w-[200px]"
+                    >
+                    Bid
+                </button>
+            </div>
+            <p class="text-[10px] md:text-base font-normal text-[#5D5F5F] mt-3">Enter ${{ highest_bid|add:1 }} or more.</p>
+        </form>
+        <p class="mt-[30px] text-xs md:text-xl font-medium">
+            By selecting <span class="text-[#2EBD85]">Confirm bid</span>, you are committing to buy this item if you are the winning bidder.
+        </p>
+        {% if messages %}
+        <div>
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                    <div class="text-red-500 text-center">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bidButtons = document.querySelectorAll('.bid-btn');
+        const bidInput = document.getElementById('id_bid_amount');
+
+        bidButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const bidValue = this.getAttribute('data-bid');
+                if (bidInput) {
+                    bidInput.value = bidValue;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

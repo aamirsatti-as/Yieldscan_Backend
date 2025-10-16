@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="flex flex-col gap-4 p-20 m-auto w-max mt-[50px]">
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="flex flex-col justify-start items-start w-[48%] gap-1.5">
+            <div class="flex flex-row items-center justify-between w-full">
+                <span class="text-lg font-medium capitalize">{{ field.label }}</span>
+            </div>
+            {{ field }}
+        </div>
+        {% endfor %}
+        <div class="grid gap-3 mt-9">
+            <button type="submit"
+            class="bg-primary text-black clear-start w-full py-3 text-lg rounded-lg font-semibold">
+            Request
+            </button>
+            <a href="{% url 'index' %}" class="py-3 border-2 rounded-md px-9 w-full bg-[#EAECEF] text-center">
+                <span class="md:text-xl font-medium capitalize">cancel</span>
+            </a>
+        </div>
+    </form>
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+        {% if message.tags == 'error' %}
+        <div class="text-red-500 text-center">{{ message }}</div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

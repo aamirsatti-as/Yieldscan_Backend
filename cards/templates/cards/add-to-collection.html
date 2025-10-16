@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div id="content" class="p-6">
+    <div class="flex justify-between items-center">
+        <p class="md:text-2xl font-semibold">Please select the album</p>
+    </div>
+    <p class="text-xs md:text-base text-[#525156]">Your selected item will be added in album</p>
+    <div class="grid grid-cols-2 lg:grid-cols-3 gap-[30px] mt-12">
+        {% for collection in collections %}
+            <a href="{% url 'add-item-collection' collection.id card_id %}?next=/card-detail/{{ card_id }}/" class="w-[175px] h-[186px] md:w-[300px] md:h-[300px] flex flex-col items-center p-4 md:p-[25px] shadow-md rounded-sm">
+                <div class="w-fit h-1/2 overflow-clip">
+                    {% if collection.image %}
+                        <img class="w-full object-cover" src="{{ collection.image.url }}" />
+                    {% else %}
+                        <img class="w-full object-cover" src="" />
+                    {% endif %}
+                </div>
+                <div class="mt-1.5">
+                    <p class="md:text-2xl font-bold">{{ collection.name }}</p>
+                    <p class="text-xs md:text-base font-normal text-[#525156]">{{ collection.total_cards }} items</p>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

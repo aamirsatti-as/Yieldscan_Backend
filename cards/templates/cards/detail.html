@@ -1,0 +1,572 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Pokemon: Sell and Buy{% endblock %}
+{% load component_tags %}
+{% block meta %}
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://64.176.164.234:12000/card-detail/{{ card.id }}/{{ grade_name }}/" />
+<meta property="og:site_name" content="Pokemon Cards">
+<meta property="og:image:width" content="300">
+<meta property="og:image:height" content="300">
+<meta property="og:title" content="{{ card.name_extended }}" />
+<meta property="og:image" content="{{ card.images.small }}">
+<meta property="og:description" content="Get your hands on a rare and valuable card. A perfect addition to any collection — secure it before it's gone!">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-[1240px] mx-auto justify-between items-start gap-10 mt-[38px] px-6 lg:px-0">
+
+    <p id="card-id" class="hidden">{{ card.id }}</p>
+    <p id="grade-id" class="hidden">{{ grade_id }}</p>
+    <p id="user-id" class="hidden">{{ user_id }}</p>
+    <p id="grade-name" class="hidden">{{ grade_name }}</p>
+
+    <div class="m-auto border border-[#DDE2E4] border-1 py-6 relative flex items-center lg:hidden rounded-[3px]">
+        <img src="{{ card.images.small }}" class="w-[150px] h-[210px] m-auto" alt="" />
+        <div class="flex flex-col gap-3 absolute right-6">
+            <a href="{% url 'add-to-collection-page' card.id %}" class="w-[32px] h-[32px] rounded-full bg-[#F5F5F2] grid place-items-center">
+                <img src="{% static 'icons/plus.svg' %}" />
+            </a>
+            <a href="{% url 'set-auction' card.id %}" class="w-[32px] h-[32px] rounded-full bg-[#F5F5F2] grid place-items-center">
+                <img src="{% static 'icons/auction.svg' %}" />
+            </a>
+            <button onclick="toggleFavorite('{{ card.id }}')" class="w-[32px] h-[32px] rounded-full bg-[#F5F5F2] grid place-items-center fav-button">
+                <span class="!w-5 !h-5" data-icon="{% if fav_card %}heart-filled{% else %}heart{% endif %}"></span>
+            </button>
+            <button class="w-[32px] h-[32px] rounded-full bg-[#F5F5F2] grid place-items-center">
+                <img src="{% static 'icons/share.svg' %}" />
+            </button>
+        </div>
+    </div>
+    <div class="flex justify-between items-center mt-5">
+        <div>
+            <h2 class="lg:text-3xl font-[600]">{{ card.name_extended }}</h2>
+        </div>
+        <div class="lg:flex gap-x-[10px] hidden">
+            <div class="relative">
+                <button id="open-modal-btn" class="w-[35px] h-[35px] rounded-full bg-[#F5F5F2] grid place-items-center">
+                    <img src="{% static 'icons/plus.svg' %}" />
+                </button>
+                <div id="albums-modal" class="absolute bottom-0 right-0 bg-white z-[10000] overflow-auto shadow-lg rounded-md hidden">
+                    <div id="content" class="p-9 text-[#1E2329] whitespace-nowrap w-[424px]">
+                        {% if user.is_authenticated %}
+                            <div class="flex justify-between items-center">
+                                <p class="text-2xl font-semibold">Please select the album</p>
+                                <button id="close-albums-modal-btn" class="text-lg w-6 h-6 grid place-items-center"><img src="{% static 'images/cross.svg' %}" /></button>
+                            </div>
+                            <p class="text-[#525156]">Your selected item will be added in album</p>
+                            <div class="grid grid-cols-3 gap-3 mt-3" id="album-container">
+                            </div>
+                        {% else %}
+                            <div class="flex justify-between items-center">
+                                <p class="text-2xl font-semibold">Please login to continue</p>
+                                <button id="close-albums-modal-btn" class="text-lg w-6 h-6 grid place-items-center"><img src="{% static 'images/cross.svg' %}" /></button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div>
+                <button data-micromodal-trigger="modal-1" class="w-[35px] h-[35px] rounded-full bg-[#F5F5F2] grid place-items-center">
+                    <img src="{% static 'icons/auction.svg' %}" />
+                </button>
+                <div class="modal micromodal-slide" id="modal-1" aria-hidden="true">
+                    <div class="modal__overlay" tabindex="-1">
+                        <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
+                            <div class="p-10 grid place-items-center">
+                                <div class="w-[50px] h-[50px] rounded-full bg-primary grid place-items-center" >
+                                    <img src="{% static 'icons/auction-add.svg' %}" />
+                                </div>
+                                <div class="flex flex-row items-center justify-between mt-4 text-center">
+                                    <div>
+                                        <h3 class="md:text-[28px] font-semibold capitalize">Add Auction</h3>
+                                        <span class="text-xs md:text-xl font-medium text-[#525156]">List your Pokémon card for auction by
+                                            setting a starting price and duration. Let the bidding begin!</span>
+                                    </div>
+                                </div>
+                                <div class="h-[1px] bg-[#1e232933] w-full mt-5 md:mt-6 md:hidden"></div>
+                                <div
+                                    class="m-auto border border-[#DDE2E4] border-1 py-6 relative flex items-center lg:hidden rounded-[3px] w-full mt-4">
+                                    <img src="{{ card.images.small }}" class="w-[150px] h-[210px] m-auto" alt="" />
+                                </div>
+                                <div class="mt-[50px] md:mt-[30px]">
+                                    <form method="post" action="{% url 'set-auction' card.id %}">
+                                        {% csrf_token %}
+                                        <div class="grid gap-y-4">
+                                            {% for field in set_auction_form %}
+                                            {% if field.name == 'start_time' or field.name == 'end_time' %}
+                                            <div class="hidden">
+                                                {{ field }}
+                                            </div>
+                                            {% else %}
+                                            <div class="flex flex-col justify-start items-start w-full md:w-[48%] gap-3">
+                                                <div class="flex flex-row items-center justify-between w-full">
+                                                    <span class="text-sm md:text-base font-semibold capitalize">
+                                                        {{ field.label }}
+                                                    </span>
+                                                </div>
+                                                {{ field }}
+                                            </div>
+                                            {% endif %}
+                                            {% endfor %}
+                                            <div class="flex flex-col justify-start items-start w-full gap-3">
+                                                <div class="flex flex-row items-center justify-between w-full">
+                                                    <span class="text-sm md:text-base font-semibold capitalize">
+                                                        Auction Duration
+                                                    </span>
+                                                </div>
+                                                <div class="flex gap-2 max-w-3xl">
+                                                    <button id="1day" type="button"
+                                                        class="flex-1 bg-primary font-normal duration-tab px-6 py-2 border border-1 border-[#DDE2E4] rounded grid place-items-center">
+                                                        <p class="text-xs md:text-base whitespace-nowrap">1 Day</p>
+                                                    </button>
+                                                    <button id="3days" type="button"
+                                                        class="flex-1 duration-tab px-6 py-2 border border-1 border-[#DDE2E4] rounded grid place-items-center">
+                                                        <p class="text-xs md:text-base whitespace-nowrap">3 Days</p>
+                                                    </button>
+                                                    <button id="1week" type="button"
+                                                        class="flex-1 duration-tab px-6 py-2 border border-1 border-[#DDE2E4] rounded grid place-items-center">
+                                                        <p class="text-xs md:text-base whitespace-nowrap">1 Week</p>
+                                                    </button>
+                                                    <button id="2weeks" type="button"
+                                                        class="flex-1 duration-tab px-6 py-2 border border-1 border-[#DDE2E4] rounded grid place-items-center">
+                                                        <p class="text-xs md:text-base whitespace-nowrap">2 Weeks</p>
+                                                    </button>
+                                                </div>
+                                                <p id="end-date" class="hidden mt-5 text-xs md:text-base font-medium">End Date</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-x-2 mt-[60px]">
+                                            <label class="flex items-center gap-x-2 cursor-pointer">
+                                                <input required type="checkbox" />
+                                                <p class="text-xs md:text-base font-medium m-0">
+                                                    Please confirm that you're listing this
+                                                    card for auction. You can't cancel, and it'll be sold at the final bid price.
+                                                </p>
+                                              </label>
+                                        </div>
+                                        <div
+                                            class="flex flex-row items-center    gap-x-6 mt-9">
+                                            <button type="submit" class="py-3 rounded-md px-9 bg-primary w-full text-center">
+                                                <span class="md:text-xl font-medium text-black capitalize">Create</span>
+                                            </button>
+                                            <button data-micromodal-close
+                                                class="py-3 rounded-md px-9 w-full bg-[#EAECEF] text-center">
+                                                <span class="md:text-xl font-medium capitalize">cancel</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button onclick="toggleFavorite('{{ card.id }}')" class="w-[35px] h-[35px] rounded-full bg-[#F5F5F2] grid place-items-center fav-button">
+                <span class="!w-5 !h-5" data-icon="{% if fav_card %}heart-filled{% else %}heart{% endif %}"></span>
+            </button>
+            <button class="w-[35px] h-[35px] rounded-full bg-[#F5F5F2] grid place-items-center">
+                <img src="{% static 'icons/share.svg' %}" />
+            </button>
+        </div>
+    </div>
+    <div class="flex items-center justify-between mt-[5px]">
+        <div
+            >
+            <!-- <p class="lg:text-base text-[10px]">
+                Graded
+            </p>
+            <div class="flex items-center gap-x-[8px]">
+                <p class="lg:text-base text-[10px]">
+                    {{ card.grade }}
+                </p>
+                <img src="{% static 'icons/line.svg' %}" />
+            </div> -->
+            <!-- Custom Dropdown -->
+            <div class="relative inline-block w-[110px] lg:w-[275px] lg:mt-[8px] border border-1 border-[#DDE2E4]  rounded-[3px]" id="card-grade-dropdown">
+                <button type="button" onclick="toggleCardDropdown()" class="w-full bg-white rounded-[3px] p-[6px] lg:px-[13px] lg:py-[11px] flex justify-between items-center">
+                    <span id="selected-grade">
+                        {% for grade in grades %}
+                            {% if grade.id == grade_id %}
+                                {{ grade.value }}
+                            {% endif %}
+                        {% endfor %}
+                        {% if not grade_id %}Select Grade{% endif %}
+                    </span>
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <!-- <div class="relative">
+                    <input 
+                        type="text" 
+                        id="grade-search" 
+                        placeholder="Select Grade" 
+                        class="w-full bg-white rounded-[3px] p-[6px] lg:px-[13px] lg:py-[11px] border border-[#DDE2E4] focus:outline-none focus:ring-1 focus:ring-blue-500 pr-8"
+                        onclick="toggleCardDropdown()"
+                        oninput="filterGrades()"
+                        readonly
+                    >
+                    <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                </div> -->
+                <div id="dropdown-list" class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded shadow-lg max-h-60 overflow-auto hidden">
+                    {% for grade in grades %}
+                    <div onclick="selectGrade('{{ grade.id }}', '{{ grade.value }}', '{{ card.id }}')" class="cursor-pointer px-4 py-2 hover:bg-gray-100 text-gray-700">
+                    <p>{{ grade.value }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Hidden input to store selected grade ID -->
+            <input type="hidden" name="grade_id" id="grade-id-input" value="">
+  
+        </div>
+        <p class="lg:hidden text-xs text-[#5D5F5F] capitalize">{{ card.number }}</p>
+    </div>
+    <div class="grid lg:grid-cols-3 lg:gap-x-[40px] pt-8">
+        <div class="hidden lg:block w-[270px]">
+            <img src="{{ card.images.small }}" class="w-[270px] h-[379px]" alt="" />
+            <div class="flex flex-col justify-start items-start w-full gap-1.5 pt-3">
+                <div class="flex flex-row justify-between items-center w-full">
+                    <span class="text-xs text-[#5D5F5F] capitalize">set:</span>
+                    <span class="text-xs text-[#5D5F5F] capitalize">{{ card.set.name }}</span>
+                </div>
+                <div class="flex flex-row justify-between items-center w-full">
+                    <span class="text-xs text-[#5D5F5F] capitalize">No:</span>
+                    <span class="text-xs text-[#5D5F5F] capitalize">{{ card.number }}</span>
+                </div>
+                <div class="flex flex-row justify-between items-center w-full">
+                    <span class="text-xs text-[#5D5F5F] capitalize">rarity:</span>
+                    <span class="text-xs text-[#5D5F5F] capitalize">{{ card.rarity }}</span>
+                </div>
+                <div class="flex flex-row justify-between items-center w-full">
+                    <span class="text-xs text-[#5D5F5F] capitalize">sold:</span>
+                    <span class="text-xs text-[#5D5F5F] capitalize">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col h-[426px] lg:w-[385px]">
+            <p id="lowest-bid" class="lg:text-xl font-[600]">Lowest Ask Price: {{ lowest_ask }}</p>
+            <p id="highest-bid" class="lg:text-xl font-[600]">Highest Bid Price: {{ highest_bid }}</p>
+            
+            <div class="flex gap-4 md:gap-10 border-b border-[#EAECEF] w-full px-5 mt-5">
+                <div class="flex flex-col items-center justify-between gap-y-1">
+                    <a class="tab-link-sales cursor-pointer" data-tab="buy">Buy</a>
+                    <img src="{% static 'icons/rectangle.svg' %}" class="tab-indicator-sales md:w-6 hidden" />
+                </div>
+                <div class="flex flex-col items-center justify-between gap-y-1">
+                    <a class="tab-link-sales cursor-pointer" data-tab="sell">Sell</a>
+                    <img src="{% static 'icons/rectangle.svg' %}" class="tab-indicator-sales md:w-6 hidden" />
+                </div>
+            </div>
+
+            {% for message in messages %}
+            <p class="{% if message.tags == 'error' %}text-red-500{% endif %}">{{ message }}</p>
+            {% endfor %}
+
+            <form method="post">
+                {% csrf_token %} 
+                <div id="tab-content-buy" class="tab-content-sales">
+                    <div class="flex flex-col justify-start items-start gap-2.5">
+                        <div class="flex justify-between items-center w-full mt-4 relative">
+                                <div id="info-tooltip" class="hidden absolute left-[84%] bottom-[87%] w-[326px] h-[145px] p-5 pt-6 bg-white shadow-lg transform -translate-x-1/2 mb-2  text-xs rounded z-10">
+                                    <div>
+                                        <div class="text-sm font-bold mb-1">
+                                            Pricing Options
+                                        </div>
+                                        <p class="text-[14px]">
+                                            Our pricing recommendations are generally based on the highest bid price and/or past sales. They are designed to give you a good or better chance or matching with a seller and include any adjustment for tax.
+                                        </p>
+                                    </div>
+                                </div>
+                            <p class="font-[600] capitalize">Set bid price</p>
+                            <div id="info-wrapper" class="lg:flex items-center gap-x-1 hidden ">
+                                <div class="w-[10px] h-[10px] rounded-full bg-black grid place-items-center">
+                                    <img src="{% static 'icons/info.svg' %}" />
+                                </div>
+                                <p class="text-xs font-[500]">Info</p>
+                            </div>
+                            
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 w-full">
+                            <div>
+                                <div class="relative flex items-center">
+                                    <input min="0" id="bid_amount_input" name="bid_amount" placeholder="131" class="border border-1 border-[#E3E3E3] w-full px-4 py-3 rounded-[3px] lg:text-sm" type="number" />
+                                    <p class="absolute left-2 lg:text-sm">$</p>
+                                </div>
+                                <p id="bid-for-items-msg" class="text-xs py-1">Bid for 0 items: $ 0</p>
+                            </div>
+                            <div>
+                                <div class="relative flex items-center">
+                                    <input id="max_bid_input" placeholder="Max Bid (Optional)" class="border border-1 border-[#E3E3E3] w-full px-4 py-3 rounded-[3px] lg:text-sm" type="number" />
+                                    <p class="absolute left-2 lg:text-sm">$</p>
+                                </div>
+                                <p class="capitalize text-xs py-1">Total max bid: </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 w-full">
+                        <div class="relative flex items-center">
+                            <input min="0" id="bid_quantity_input" name="quantity" placeholder="1" class="text-right border border-1 border-[#E3E3E3] w-full px-4 py-3 rounded-[3px] lg:text-sm" type="number" />
+                            <p class="absolute left-2 lg:text-sm">Quantity</p>
+                        </div>
+                        <p class="card_entities_for_sale capitalize text-xs py-1">Available: {{ card_entities|length }}</p>
+                    </div>
+                    <!-- Buttons -->
+                    <div class="flex flex-col justify-start items-start w-full gap-y-[10px] mt-5">
+                        <button
+                            type="button"
+                            class="w-full rounded-md bg-[#2EBD85] py-3 text-center place-bid-btn
+                            {% if not grade_id %} opacity-60 {% endif %}"
+                            {% if not grade_id %}disabled{% endif %}>
+                            <span class="capitalize text-white text-xl lg:text-base font-medium lg:font-bold">Place Bid</span>
+                        </button>
+                        <button name="submit_type" value="buy_now" type="button"
+                            class="buy-now-btn w-full border-1 border-[#2EBD85] rounded-md py-3
+                            {% if not grade_id %} opacity-60 {% endif %}"
+                            {% if not grade_id %}disabled{% endif %}
+                            >
+                            <span id="buy-now-btn-span"
+                                class="text-[#2EBD85] capitalize text-xl lg:text-base font-medium">Buy Now </span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <form method="post">
+                {% csrf_token %}
+                <div id="tab-content-sell" class="tab-content-sales">
+                    <div class="flex flex-col w-full">
+                        <div class="flex justify-between items-center w-full mt-4">
+                            <p class="font-[600] capitalize">Set ask price</p>
+                            <div class="lg:flex items-center gap-x-1 hidden">
+                                <div class="w-[10px] h-[10px] rounded-full bg-black grid place-items-center">
+                                    <img src="{% static 'icons/info.svg' %}" />
+                                </div>
+                                <p class="text-xs font-[500]">Info</p>
+                            </div>
+                        </div>
+                        <div class="w-full mt-[10px]">
+                            <div class="relative flex items-center">
+                                <input min="0" id="sale_amount_input" name="sale_amount" placeholder="171"
+                                    class="border border-1 border-[#E3E3E3] w-full px-4 py-3 rounded-[3px] lg:text-sm"
+                                    type="number" />
+                                <p class="absolute left-2 lg:text-sm">$</p>
+                            </div>
+                            <p id="sale-for-items-msg" class="capitalize text-xs py-1">Sell 0 items for: $ 0</p>
+                        </div>
+                        <div class="mt-4 w-full">
+                            <div class="relative flex items-center">
+                                <input min="0" max="{{ card_entities_owned_all|length }}" id="sale_quantity_input"
+                                    name="quantity" placeholder="1"
+                                    class="text-right border border-1 border-[#E3E3E3] w-full px-4 py-3 rounded-[3px] lg:text-sm"
+                                    type="number" />
+                                <p class="absolute left-2 lg:text-sm">Quantity</p>
+                            </div>
+                            <p class="card-entries-owned-all capitalize text-xs py-1">Available: {{ card_entities_owned_all|length }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+
+                    <div class="flex flex-col justify-start items-start w-full gap-y-[10px] mt-5">
+                        <!-- <button name="submit_type" value="set_ask" type="submit"
+                            class="w-full border-1 bg-[#F6465D] rounded-md py-3 text-center
+                                {% if not card_entities_owned_all %} opacity-10 cursor-not-allowed pointer-events-none {% endif %}" {% if not card_entities_owned_all %}disabled{% endif %}>
+                            <span class="text-white capitalize text-xl lg:text-base lg:font-bold">Set ask</span>
+                        </button> -->
+                        <button value="set_ask" type="button"
+                            class="set-ask-btn w-full bg-[#F6465D] rounded-md py-3 text-center
+                                {% if not card_entities_owned_all or not grade_id %} opacity-60 cursor-not-allowed pointer-events-none {% endif %}"
+                                 {% if not card_entities_owned_all or not grade_id %}disabled{% endif %}>
+                            <span class="text-white capitalize text-xl lg:text-base lg:font-bold">Set asks</span>
+                        </button>
+                        <button name="submit_type" value="sell_now" type="submit" class="sell-now-btn w-full border-1 border-[#F6465D] rounded-md py-3 text-center
+                            {% if not card_entities_owned_all or not grade_id %} opacity-60 cursor-not-allowed pointer-events-none {% endif %}"
+                            {% if not card_entities_owned_all or not grade_id %}disabled{% endif %}>
+                            <span id="sell-now-btn-span"
+                                class="text-[#F6465D] capitalize text-xl lg:text-base font-medium">Sell Now</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="flex flex-col justify-start items-start mt-8 lg:mt-0 lg:h-[420px] lg:w-[375px]">
+            <div class="flex flex-col justify-start items-start w-full mt-8 lg:mt-0">
+                <h3 class="lg:text-xl font-[600]">Market Data</h3>
+                <!-- tabs -->
+                <div class="flex justify-between gap-10 border-b border-[#EAECEF] w-full px-5 mt-5">
+                    <div class="flex flex-col justify-between items-center gap-y-1 lg:h-[36px]">
+                        <a class="tab-link-market font-medium text-xs lg:text-base cursor-pointer"
+                            data-tab="asks">Asks</a>
+                        <img class="tab-indicator-market hidden w-4 lg:w-8" src="{% static 'icons/rectangle.svg' %}" />
+                    </div>
+                    <div class="flex flex-col justify-between items-center gap-y-1 lg:h-[36px]">
+                        <a class="tab-link-market font-medium text-xs lg:text-base cursor-pointer"
+                            data-tab="bids">Bids</a>
+                        <img class="tab-indicator-market hidden w-4 lg:w-8" src="{% static 'icons/rectangle.svg' %}" />
+                    </div>
+                    <div class="flex flex-col justify-between items-center gap-y-1 lg:h-[36px]">
+                        <a class="tab-link-market font-medium text-xs lg:text-base cursor-pointer"
+                            data-tab="sales">Sales</a>
+                        <img class="tab-indicator-market hidden w-4 lg:w-8" src="{% static 'icons/rectangle.svg' %}" />
+                    </div>
+                </div>
+            </div>
+            <!-- table -->
+            <div class="w-full max-h-[350px] overflow-y-scroll mt-3 md:mt-0">
+                <table id="tab-content-bids" class="w-full table-fixed tab-content-market">
+                    <thead>
+                        <tr>
+                            <th scope="col"
+                                class="py-1 pl-4 pr-3 text-center text-xs font-semibold text-[#252C32] sm:pl-3">
+                                Price
+                            </th>
+                            <th scope="col" class="px-3 py-1 text-center text-xs font-semibold text-[#252C32]">Quantity
+                            </th>
+                            <th scope="col" class="px-3 py-1 text-center text-xs font-semibold text-[#252C32]">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white" id="bids-table">
+                        {% if bids %}
+                            {% for bid in bids %}
+                                <tr class="even:bg-gray-50">
+                                    <td
+                                        id="bid-{{ bid.id }}"
+                                        class="whitespace-nowrap text-center py-1 pl-4 pr-3 text-xs font-medium text-[#E2464A] sm:pl-3">
+                                        {{ bid.price }}
+                                    </td>
+                                    <td class="whitespace-nowrap text-center px-3 py-1 text-xs text-[#252C32]">
+                                        {{ bid.quantity }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 text-center py-1 text-xs text-[#252C32]">
+                                        {{ bid.total }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-gray-500 text-sm">
+                                    No bids found
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+                <table id="tab-content-asks" class="w-full table-fixed tab-content-market">
+                    <thead>
+                        <tr>
+                            <th scope="col"
+                                class="py-1 pl-4 pr-3 text-center text-xs font-semibold text-[#252C32] sm:pl-3">
+                                Price
+                            </th>
+                            <th scope="col" class="px-3 py-1 text-center text-xs font-semibold text-[#252C32]">Quantity
+                            </th>
+                            <th scope="col" class="px-3 py-1 text-center text-xs font-semibold text-[#252C32]">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white" id="asks-table">
+                        {% if asks %}
+                            {% for ask in asks %}
+                                <tr class="even:bg-gray-50">
+                                    <td
+                                        id="ask-{{ ask.id }}"
+                                        class="whitespace-nowrap text-center py-1 pl-4 pr-3 text-xs font-medium text-[#E2464A] sm:pl-3">
+                                        {{ ask.price }}
+                                    </td>
+                                    <td class="whitespace-nowrap text-center px-3 py-1 text-xs text-[#252C32]">
+                                        {{ ask.quantity }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 text-center py-1 text-xs text-[#252C32]">
+                                        {{ ask.total }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-gray-500 text-sm">
+                                    No asks found
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+                <table id="tab-content-sales" class="w-full table-fixed tab-content-market">
+                    <thead>
+                        <tr>
+                            <th scope="col"
+                                class="py-1 pl-4 pr-3 text-center text-xs font-semibold text-[#252C32] sm:pl-3">
+                                Price
+                            </th>
+                            <th scope="col" class="px-3 py-1 text-center text-xs font-semibold text-[#252C32]">Quantity
+                            </th>
+                            <th scope="col" class="px-3 py-1 text-center text-xs font-semibold text-[#252C32]">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white" id="sales-table">
+                        {% if sales %}
+                            {% for sale in sales %}
+                                <tr class="even:bg-gray-50">
+                                    <td
+                                        class="whitespace-nowrap text-center py-1 pl-4 pr-3 text-xs font-medium text-[#E2464A] sm:pl-3">
+                                        ${{ sale.price|floatformat:-2 }}
+                                    </td>
+                                    <td class="whitespace-nowrap text-center px-3 py-1 text-xs text-[#252C32]">
+                                        {{ sale.quantity }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 text-center py-1 text-xs text-[#252C32]">
+                                        {{ sale.created_at_formatted }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-gray-500 text-sm">
+                                    No sales found
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% component "auction-orders" auctions=auctions orders=orders /%}
+
+    <!-- <div class="flex flex-col items-center mt-20 mb-30 me-[10px]">
+        <div id="graph-btns" class="flex gap-x-10 md:gap-x-44">
+            <button value="1m" class="bg-[#EAECEF] w-8 h-8 grid place-items-center">
+                <p class="text-xs md:text-sm text-[#1E2329] font-semibold">1M</p>
+            </button>
+            <button value="3m" class="w-8 h-8 grid place-items-center">
+                <p class="text-xs md:text-sm text-[#1E2329] font-semibold">3M</p>
+            </button>
+            <button value="6m" class="w-8 h-8 grid place-items-center">
+                <p class="text-xs md:text-sm text-[#1E2329] font-semibold">6M</p>
+            </button>
+            <button value="8m" class="w-8 h-8 grid place-items-center">
+                <p class="text-xs md:text-sm text-[#1E2329] font-semibold">8M</p>
+            </button>
+            <button value="1y" class="w-8 h-8 grid place-items-center">
+                <p class="text-xs md:text-sm text-[#1E2329] font-semibold">1Y</p>
+            </button>
+        </div>
+        <canvas class="mt-2 height-[200px] md:height-[600px] w-full" id="myChart"></canvas>
+    </div> -->
+</div>
+<script src="{% static 'js/common.js' %}"></script>
+<script src="{% static 'js/AuctionAndBuySellOrders.js' %}"></script>
+<script src="{% static 'js/toggleCardFavorite.js' %}"></script>
+<script src="{% static 'js/AuctionAndOrdersTable.js' %}"></script>
+<script src="{% static 'js/cardDetail.js' %}"></script>
+<script src="{% static 'js/toastMessage.js' %}"></script>
+<script src="{% static 'js/marketTabs.js' %}"></script>
+<script src="{% static 'js/lineGraph.js' %}"></script>
+<script src="{% static 'js/addToAlbum.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+{% block details %}
+<div class="flex flex-row items-center justify-between">
+    <div>
+        <h3 class="md:text-[32px] font-semibold capitalize">Create Album</h3>
+        <p class="text-xs font-medium text-[#525156] md:hidden">Add details to create your album</p>
+    </div>
+</div>
+<div class="h-[1px] bg-[#1e232933] w-full mt-5 md:mt-6 md:hidden"></div>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="grid gap-6 flex-1 mt-[30px]">
+        {% for field in form %}
+        {% if field.label == 'Name' %}
+            <div class="flex flex-col justify-start items-start w-full md:w-[48%] gap-1.5">
+                <div class="flex flex-row items-center justify-between w-full">
+                    <span class="text-sm md:text-base font-medium capitalize">Album Name</span>
+                </div>
+                {{ field }}
+            </div>
+        {% elif field.label == 'Image' %}
+            <div class="flex flex-col justify-start items-start w-full md:w-[48%] gap-1.5">
+                <span class="text-sm md:text-base font-medium capitalize">Add Image</span>
+                <button id="uploadButton" type="button" class="w-full flex flex-col gap-4 border border-1 border-dotted rounded-md border-[#9E9E9E] justify-center items-center px-[50px] py-[70px]"> 
+                    <img src="{% static 'icons/upload.svg' %}" />
+                    <p><span class="font-semibold">Click here</span> to upload image</p>
+                </button>
+            </div>
+            <div class="hidden">
+                {{ field }}
+            </div>
+        {% else %}
+            <div class="flex flex-col justify-start items-start w-full md:w-[48%] gap-1.5">
+                <div class="flex flex-row items-center justify-between w-full">
+                    <span class="text-sm md:text-base font-medium capitalize">{{ field.label }}</span>
+                </div>
+                {{ field }}
+            </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <div class="flex flex-row md:flex-row-reverse items-center justify-between md:justify-start gap-x-[30px] md:gap-5 mt-9">
+        <a href="{% url 'collections' %}" class="py-3 border-2 rounded-md px-9 w-full md:w-max bg-[#EAECEF] text-center">
+            <span class="md:text-xl font-medium capitalize">cancel</span>
+        </a>
+        <button type="submit" class="py-3 rounded-md px-9 bg-primary w-full md:w-max text-center">
+            <span class="md:text-xl font-medium text-black capitalize">create</span>
+        </button>
+    </div>
+</form>
+<script>
+    document.getElementById("uploadButton").addEventListener("click", function () {
+        document.getElementById("id_image").click();
+    });
+
+    document.getElementById("id_image").addEventListener("change", function () {
+        let fileName = this.files.length > 0 ? this.files[0].name : "Click here to upload image";
+        document.getElementById("uploadButton").querySelector("p").innerHTML = `<span class="font-semibold">${fileName}</span>`;
+    });
+</script>
+{% endblock %}

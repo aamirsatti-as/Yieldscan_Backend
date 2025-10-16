@@ -1,0 +1,764 @@
+{% extends 'base.html' %}
+{% block title %}Pokemon: Casino Page{% endblock %}
+{% load static %}
+{% block content %}
+{% block meta %}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://64.176.164.234:12000/casino/{{ casino_sale.id }}/" />
+    <meta property="og:site_name" content="Pokemon Casino">
+    <meta property="og:title" content="Casino Sale" />
+    <meta property="og:image:width" content="300">
+    <meta property="og:image:height" content="300">
+    <meta property="og:image" itemprop="image" content="{{ ino_sale.booster_box.image.url }}">
+    <meta property="og:description" content="Explore rare Pokemon booster boxes and exclusive casino deals. Catch the excitement and level up your collection today!">
+
+{% endblock %}
+<div class="mt-[30px] hidden md:grid grid-cols-5 gap-x-9 gap-y-[50px]">
+    <p id="casino-id" class="hidden">{{ casino_sale.id }}</p>
+    <p id="entry-fee" class="hidden">{{ casino_sale.entry_fee }}</p>
+    <p id="max-slots" class="hidden">{{ casino_sale.max_participants }}</p>
+    <p id="has-casino-sale-to-start" class="hidden">{{ casino_sale.has_to_start }}</p>
+    
+    <div id="countdown" class="hidden" data-end-time="{{ casino_sale.end_time|date:'c' }}"></div>
+    <div id="countdown-start-date" class="hidden" data-start-time="{{ casino_sale.start_time|date:'c' }}"></div>
+    <div id="main-container" class="{% if casino_sale.is_sold_out or casino_sale.is_ended %}flex  col-span-5 {% else %} col-span-3 {% endif %} p-[30px] border border-[#E4E7E9] rounded-lg ">
+        <!-- <div class="mr-[20px] w-[130px] shrink-0">
+            {% if casino_sale.booster_box and casino_sale.booster_box.image %}
+                <img class="h-[175px]" src="{{ casino_sale.booster_box.image.url }}" />
+            {% endif %}
+        </div> -->
+        <div id='sold-out-container-desktop' class="hidden">
+            <div>
+            <p class="bg-[#EAECEF] px-3 py-2 rounded-sm used-slots inline-block mt-2">{{ casino_sale.total_participants }}/{{ casino_sale.max_participants }} Bought</p>
+            </div>
+            <h2 class="font-semibold text-[28px] text-left">{{ casino_sale.booster_box.box_name }}{% if not casino_sale.is_sold_out or casino_sale.is_ended %}<span class="font-medium ml-5 text-base text-[#525156]
+                {% if not casino_sale.has_to_start%} hidden {% endif %}">Opening in</span>{% endif %}</h2>
+            <h2 class="uppercase font-bold text-[40px] text-left">Sold out</h2>
+            <div class="grid grid-cols-2">
+                <p class="text-xl text-left font-medium text-[#252C32]">
+                    Casino sale has Ended! Thank you for participating! Your support made this event a success. Stay tuned for more exciting events and exclusive offers coming soon!
+                </p>
+                <div class="place-items-end place-content-end">
+                    <p class="text-[#525156]">{{ casino_sale.end_time_formatted_new }}</p>
+                </div>
+            </div>
+        </div>
+        <div id="left-menu-casino-page-desktop" class="w-full">
+            
+            <div class="flex gap-10">
+                <div id="show-casino-sale-ended-container" class="hidden ">
+                    <div id="casino-image-container" class=" min-w-[max-content]">
+                        <img src="{{casino_sale.booster_box.image.url}}" alt="" class="w-[130px] h-[170px]"/>
+                    </div>
+                    <div class="w-full">
+                        <h2 class="uppercase font-bold text-[40px] text-left">Sale ended</h2>
+                        <div class="grid w-[500px]">
+                            <p class="text-xl text-[#252C32] font-medium text-left">
+                                Thank you for making it success! Next event coming soon...
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex justify-end min-w-[max-content] w-full">
+                        <div class="flex flex-col justify-between">
+                            <div class="bg-[#EAECEF] px-3 py-2 rounded-sm">
+                                <p class="used-slots ">{{ casino_sale.total_participants }}/{{ casino_sale.max_participants }} Bought</p>
+                            </div>
+                            <div class="place-items-end place-content-end">
+                                <p class="text-[#525156]">{{ casino_sale.end_time_formatted_new }}</p>
+                            </div>
+            
+                        </div>
+                    </div>
+                </div>
+                {% if casino_sale.is_ended or  casino_sale.is_sold_out%}
+                    <div class="min-w-[max-content]">
+                        <img src="{{casino_sale.booster_box.image.url}}" alt="" class="w-[130px] h-[170px]"/>
+                    </div>
+                {%endif%}
+                <div class="w-full" id="hide-casino-sale-ended-container">
+                    <div>
+                        <div id='desktop-header-section' class="flex w-full">
+                            <h2 class="font-semibold text-[28px] text-left min-w-[max-content]">{{ casino_sale.booster_box.box_name }}{% if not casino_sale.is_sold_out or casino_sale.is_ended %}
+                                <span class="font-medium ml-5 text-base text-[#525156]
+                                {% if not casino_sale.has_to_start%} hidden {% endif %}">Opening in</span>{% endif %}
+                            </h2>
+                            {% if not casino_sale.is_sold_out and not casino_sale.is_ended %}
+                                <div class="flex justify-end w-full">
+                                    <div class="bg-[#EAECEF] px-3 py-2 rounded-sm ">
+                                        <p class="used-slots ">{{ casino_sale.total_participants }}/{{ casino_sale.max_participants }} Bought</p>
+                                    </div>
+                                </div>
+                            {%endif%}
+                        </div>
+                    </div>
+
+                        {% if casino_sale.is_ended %}
+                            <h2 class="uppercase font-bold text-[40px] text-left">Sale ended</h2>
+                            <div class="grid w-[500px]">
+                                <p class="text-xl text-[#252C32] font-medium text-left">
+                                    Thank you for making it success! Next event coming soon...
+                                </p>
+                            </div>
+                        {% elif casino_sale.is_sold_out %}
+                        <div class="casino-sold-out">
+                            <h2 class="uppercase font-bold text-[40px] text-left">Sold out</h2>
+                            <div class="grid w-[500px]">
+                                <p class="text-xl text-left font-medium text-[#252C32]">
+                                    Casino sale has Ended! Thank you for participating! Your support made this event a success. Stay tuned for more exciting events and exclusive offers coming soon!
+                                </p>
+                            </div>
+                        </div>
+                        {% elif not casino_sale.is_ended %}
+                            <div class="mt-5 flex justify-between text-center w-full">
+                                <div>
+                                    <p class="font-bold text-[32px] days">{{ casino_sale.time_remaining.days }}</p>
+                                    <p class="uppercase font-semibold mt-5">Days</p>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-[32px] hours">{{ casino_sale.time_remaining.hours }}</p>
+                                    <p class="uppercase font-semibold mt-5">Hours</p>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-[32px] minutes">{{ casino_sale.time_remaining.minutes }}</p>
+                                    <p class="uppercase font-semibold mt-5">Minutes</p>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-[32px] seconds">{{ casino_sale.time_remaining.seconds }}</p>
+                                    <p class="uppercase font-semibold mt-5">Seconds</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                </div>
+                {% if casino_sale.is_ended or  casino_sale.is_sold_out%}
+
+                <div class="flex justify-end min-w-[max-content] w-full">
+                    <div class="flex flex-col justify-between">
+                        <div class="bg-[#EAECEF] px-3 py-2 rounded-sm">
+                            <p class="used-slots ">{{ casino_sale.total_participants }}/{{ casino_sale.max_participants }} Bought</p>
+                        </div>
+                        <div class="place-items-end place-content-end">
+                            <p class="text-[#525156]">{{ casino_sale.end_time_formatted_new }}</p>
+                        </div>
+        
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+        </div>
+    </div>
+    {% if not casino_sale.is_sold_out and not casino_sale.is_ended %}
+        <div id="right-menu-casino-page-desktop" class="col-span-2 p-[30px] border border-[#E4E7E9] rounded-lg">
+            {% if casino_sale.has_to_start %}
+                <div class="grid">
+                    <p class="font-semibold capitalize text-center text-2xl">Sale Starts In</p>
+                    <div class="mt-[10px] flex justify-center gap-x-[35px] text-[#E2464A] text-center">
+                        <div class="text-[#E2464A]">
+                            <p class="font-bold text-[32px] sale-start-hours">{{ casino_sale.time_till_start_without_days.hours }}</p>
+                            <p class="uppercase font-semibold">Hours</p>
+                        </div>
+                        <div class="text-[#E2464A]">
+                            <p class="font-bold text-[32px] sale-start-minutes">{{ casino_sale.time_till_start_without_days.minutes }}</p>
+                            <p class="uppercase font-semibold">Minutes</p>
+                        </div>
+                        <div class="text-[#E2464A]">
+                            <p class="font-bold text-[32px] sale-start-seconds">{{ casino_sale.time_till_start_without_days.seconds }}</p>
+                            <p class="uppercase font-semibold">Seconds</p>
+                        </div>
+                    </div>
+                    <button type="submit" disabled class="capitalize bg-[#EAECEF] text-[#A19F9E] w-full mt-5 py-3 text-xl rounded-md font-semibold">
+                        Buy Now
+                    </button>
+                </div>
+            {% else %}
+                <for class="w-full grid">
+                    {% csrf_token %}
+                    <div class="flex justify-between items-center">
+                        <p class="font-semibold text-2xl">Buy slot for </p>
+                        <p class="font-bold text-[32px]">${{ casino_sale.entry_fee }}</p>
+                    </div>
+                    <div class="relative flex items-center mt-4">
+                        <input min="0" max="{{ casino_sale.max_participants }}" id="desktop_entry_quantity_input" name="quantity" placeholder="1"
+                            class="text-right border border-1 border-[#E3E3E3] w-full px-4 py-3 rounded-[3px]" type="number" />
+                        <p class="absolute left-4">Quantity</p>
+                    </div>
+                    <button id="casino_card_desktop_buy_btn" type="submit" class="capitalize bg-[#2EBD85] text-white w-full mt-5 py-3 text-xl rounded-md font-semibold">
+                        Buy Now
+                    </button>
+                </for>
+            {% endif %}
+        </div>
+    {% endif %}
+    <div class="col-span-3">
+        {% if casino_sale.booster_box and casino_sale.booster_box.image %}
+                <img class="w-[450px] h-[420px]" src="{{ casino_sale.booster_box.image.url }}" />
+        {% endif %}
+    </div>
+    <div  class="col-span-2">
+        <!-- <div class="flex flex-col justify-start items-start w-full ">-->
+            <div class="flex gap-20 border-b w-full border-[#EAECEF] px-10">
+                <div class="flex flex-col items-center justify-between gap-y-2">
+                    <a class="tab-link font-semibold cursor-pointer" data-tab="my-slots">My Slots</a>
+                    <img class="tab-indicator w-6 h-1 hidden" src="{% static 'icons/rectangle.svg' %}" />
+                </div>
+                <div class="flex flex-col items-center justify-between gap-y-2">
+                    <a class="tab-link font-semibold cursor-pointer" data-tab="all-slots">All Slots</a>
+                    <img class="tab-indicator w-6 h-1 hidden" src="{% static 'icons/rectangle.svg' %}" />
+                </div>
+            </div> 
+            <table class="w-full table-fixed mt-3">
+                <thead>
+                  <tr>
+                    <th scope="col" class="py-1 pl-4 pr-3 text-center font-semibold text-[#252C32] sm:pl-3">
+                      User
+                    </th>
+                    <th scope="col" class="px-3 py-1 text-center font-semibold text-[#252C32]">Slot</th>
+                    <th scope="col" class="px-3 py-1 text-center font-semibold text-[#252C32]">Price</th>
+                    <th scope="col" class="px-3 py-1 text-center font-semibold text-[#252C32]">Date</th>
+                  </tr>
+                </thead>
+              </table>
+            <div class="w-full mt-3 h-[325px] overflow-y-auto">
+                
+                <table class="w-full table-fixed max-h-[308px]">
+                    <tbody id="content-my-slots" class="bg-white tab-content hidden content-my-slots ">
+                        {% if own_participants %}
+                            {% for participant in own_participants %}
+                            <tr class="even:bg-gray-50">
+                                <td
+                                    class="capitalize whitespace-nowrap text-center py-1 pl-4 text-base pr-3 font-normal text-[#2EBD85] sm:pl-3">
+                                    {{ participant.user }}
+                                </td>
+                                <td class="whitespace-nowrap text-center px-3 py-1 text-[#252C32] text-base">
+                                    1
+                                </td>
+                                <td class="whitespace-nowrap px-3 text-center py-1 text-[#252C32] text-base">
+                                    ${{ casino_sale.entry_fee }}
+                                </td>
+                                <td class="whitespace-nowrap px-3 text-center py-1 text-[#252C32] text-base">
+                                    {{ participant.time_ago }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-gray-500 text-sm">
+                                    <div class="flex flex-col justify-center items-center min-h-[250px]">
+                                        <img src="{% static 'icons/no_slots.svg' %}" alt=""/>
+                                        <p class="text-sm font-semibold mt-2">Slot is empty</p>
+                                        <p class="text-[#A19F9E] text-xs mt-[6px]">There's currently no slots available at the moment.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                    <tbody id="content-all-slots" class="bg-white tab-content hidden content-all-slots">
+                        {% if participants %}     
+                            {% for participant in participants %}
+                            <tr class="even:bg-gray-50">
+                                <td
+                                    class="capitalize whitespace-nowrap text-center py-1 pl-4 pr-3 font-normal text-[#2EBD85] sm:pl-3">
+                                    {{ participant.user }}
+                                </td>
+                                <td class="whitespace-nowrap text-center px-3 py-1 text-[#252C32]">
+                                    1
+                                </td>
+                                <td class="whitespace-nowrap px-3 text-center py-1 text-[#252C32]">
+                                    ${{ casino_sale.entry_fee }}
+                                </td>
+                                <td class="whitespace-nowrap px-3 text-center py-1 text-[#252C32] ">
+                                    {{ participant.time_ago }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-gray-500 text-sm">
+                                    <div class="flex flex-col justify-center items-center min-h-[250px]">
+                                        <img src="{% static 'icons/no_slots.svg' %}" alt=""/>
+                                        <p class="text-sm font-semibold mt-2">Slot is empty</p>
+                                        <p class="text-[#A19F9E] text-xs mt-[6px]">There's currently no slots available at the moment.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        <!-- </div> -->
+    </div>
+</div>
+
+<div class="md:hidden flex flex-col text-center px-6 md:px-0 py-5 pb-0 text-[#1E2329]">
+    <div id="show-casino-end-container-mobile" class="hidden">
+        <div id="mobile-heading-container"  class="flex w-full ">
+            <h2 class="font-semibold text-[28px] text-left min-w-[max-content]">{{ casino_sale.booster_box.box_name }}
+            </h2>
+        </div>
+        <h2 class="uppercase font-bold text-2xl text-left">Sale ended</h2>
+        <div class="grid grid-cols-2">
+            <p class="text-xs text-[#525156] text-left">
+                Casino sale has Ended! Thank you for participating! Your support made this event a success. Stay tuned for more exciting events and exclusive offers coming soon!
+            </p>
+            <div class="place-items-end place-content-end">
+                <p class="text-[10px] text-[#525156]">{{ casino_sale.end_time_formatted_new }}</p>
+            </div>
+        </div>
+
+        <div class="border border-[#EAECEF] rounded-sm h-[255px] flex justify-center items-center mb-[10px] mt-8">
+            {% if casino_sale.booster_box and casino_sale.booster_box.image %}
+                <img class="w-[206px] h-[198px]" src="{{ casino_sale.booster_box.image.url }}" />
+            {% endif %}
+        </div>
+        
+        <div class="flex flex-col justify-start items-start w-full mt-[30px]">
+            <div class="flex gap-20 border-b w-full border-[#EAECEF] px-10">
+                <div class="flex flex-col items-center justify-between gap-y-2">
+                    <a class="tab-link font-semibold text-xs lg:text-lg cursor-pointer" data-tab="my-slots">My Slots</a>
+                    <img class="tab-indicator w-6 h-1 hidden" src="{% static 'icons/rectangle.svg' %}" />
+                </div>
+                <div class="flex flex-col items-center justify-between gap-y-2">
+                    <a class="tab-link font-semibold text-xs lg:text-lg cursor-pointer" data-tab="all-slots">All Slots</a>
+                    <img class="tab-indicator w-6 h-1 hidden" src="{% static 'icons/rectangle.svg' %}" />
+                </div>
+            </div>
+            <div class="w-full table-fixed mt-3 md:mt-0">
+                
+                <table class="w-full table-fixed mt-3">
+                    <thead>
+                      <tr>
+                        <th scope="col" class="py-1 pl-4 pr-3 text-center font-semibold text-[#252C32] sm:pl-3">
+                          User
+                        </th>
+                        <th scope="col" class="px-3 py-1 text-center font-semibold text-[#252C32]">Slot</th>
+                        <th scope="col" class="px-3 py-1 text-center font-semibold text-[#252C32]">Price</th>
+                        <th scope="col" class="px-3 py-1 text-center font-semibold text-[#252C32]">Date</th>
+                      </tr>
+                    </thead>
+                  </table>
+                <div class="max-h-[400px] overflow-y-auto">
+                        <table class="w-full table-fixed max-h-[100px] overflow-y-auto">
+                            <tbody id="content-my-slots" class="bg-white tab-content hidden content-my-slots">
+                                {% if own_participants %}
+                                    {% for participant in own_participants %}
+                                    <tr class="even:bg-gray-50">
+                                        <td
+                                            class="capitalize whitespace-nowrap text-center py-1 pl-4 pr-3 text-xs font-normal text-[#2EBD85] sm:pl-3">
+                                            {{ participant.user }}
+                                        </td>
+                                        <td class="whitespace-nowrap text-center px-3 py-1 text-xs text-[#252C32]">
+                                            1
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 text-center py-1 text-xs text-[#252C32]">
+                                            ${{ casino_sale.entry_fee }}
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 text-center py-1 text-xs text-[#252C32] ">
+                                            {{ participant.time_ago }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-gray-500 text-sm">
+                                            <div class="flex flex-col justify-center items-center min-h-[250px]">
+                                                <img src="{% static 'icons/no_slots.svg' %}" alt=""/>
+                                                <p class="text-sm font-semibold mt-2">Slot is empty</p>
+                                                <p class="text-[#A19F9E] text-xs mt-[6px]">There's currently no slots available at the moment.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                            <tbody id="content-all-slots" class="bg-white tab-content hidden content-all-slots">
+                                {% if participants %}
+                                {% for participant in participants %}
+                                    <tr class="even:bg-gray-50">
+                                        <td
+                                            class="capitalize whitespace-nowrap text-center py-1 pl-4 pr-3 text-xs font-normal text-[#2EBD85] sm:pl-3">
+                                            {{ participant.user }}
+                                        </td>
+                                        <td class="whitespace-nowrap text-center px-3 py-1 text-xs text-[#252C32]">
+                                            1
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 text-center py-1 text-xs text-[#252C32]">
+                                            ${{ casino_sale.entry_fee }}
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 text-center py-1 text-xs text-[#252C32] ">
+                                            {{ participant.time_ago }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-gray-500 text-sm">
+                                            <div class="flex flex-col justify-center items-center min-h-[250px]">
+                                                <img src="{% static 'icons/no_slots.svg' %}" alt=""/>
+                                                <p class="text-sm font-semibold mt-2">Slot is empty</p>
+                                                <p class="text-[#A19F9E] text-xs mt-[6px]">There's currently no slots available at the moment.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+</div>
+
+<div id="hide-casino-end-container-mobile" class="md:hidden flex flex-col text-center px-6 md:px-0 py-5 pb-0 text-[#1E2329]">
+
+
+    <div id="mobile-bought-container" class="flex justify-between items-start">
+        
+        <!-- <div class="bg-[#E2464A12] rounded-sm px-1 py-0.5">
+            <p class="flex text-[10px] gap-x-1 text-[#E2464A]"><img src="{% static 'icons/eye.svg' %}" /> 51 viewed in the last 24 hours</p>
+        </div> -->
+        
+    </div>
+    <!-- <div id="mobile-heading-container"  class="flex w-full ">
+        <h2 class="font-semibold text-[28px] text-left min-w-[max-content]">{{ casino_sale.booster_box.box_name }}{% if not casino_sale.is_sold_out or casino_sale.is_ended %}
+            <span class="font-medium ml-5 text-base text-[#525156]
+            {% if not casino_sale.has_to_start%} hidden {% endif %}">Opening in</span>{% endif %}
+        </h2>
+        {% if not casino_sale.is_sold_out and not casino_sale.is_ended %}
+            <div class="flex justify-end w-full">
+                <div class="bg-[#EAECEF] px-3 py-2 rounded-sm ">
+                    <p class="used-slots ">{{ casino_sale.total_participants }}/{{ casino_sale.max_participants }} Bought</p>
+                </div>
+            </div>
+        {%endif%}
+    </div> -->
+
+
+    <div id="sold-out-container-mobile" class="hidden">
+        <div class="flex">
+            <p class="text-[10px] used-slots bg-[#EAECEF] p-1 inline-block">{{ casino_sale.total_participants }}/{{ casino_sale.max_participants }} Bought</p>
+        </div>
+        <h2 class="font-semibold text-base text-left">{{ casino_sale.booster_box.box_name }}{% if not casino_sale.is_sold_out or casino_sale.is_ended %}<span class="font-medium ml-1 text-[10px] text-[#525156]
+            {% if not casino_sale.has_to_start%} hidden {% endif %}">Opening in</span>{% endif %}</h2>
+        <h2 class="uppercase font-bold text-2xl text-left">Sold out</h2>
+        <div class="grid grid-cols-2">
+            <p class="text-xs text-left font-medium text-[#252C32]">
+                Casino sale has Ended! Thank you for participating! Your support made this event a success. Stay tuned for more exciting events and exclusive offers coming soon!
+            </p>
+            <div class="place-items-end place-content-end">
+                <p class="text-[10px] text-[#525156]">{{ casino_sale.end_time_formatted_new }}</p>
+            </div>
+        </div>
+    </div>
+    <div id="mobile-bought-container" class="flex justify-between items-start">
+        <!-- <div class="bg-[#E2464A12] rounded-sm px-1 py-0.5">
+            <p class="flex text-[10px] gap-x-1 text-[#E2464A]"><img src="{% static 'icons/eye.svg' %}" /> 51 viewed in the last 24 hours</p>
+        </div> -->
+        
+    </div>
+    <div id="mobile-heading-container"  class="flex w-full ">
+        <h2 class="font-semibold text-[28px] text-left min-w-[max-content]">{{ casino_sale.booster_box.box_name }}{% if not casino_sale.is_sold_out or casino_sale.is_ended %}
+            <span class="font-medium ml-5 text-base text-[#525156]
+            {% if not casino_sale.has_to_start%} hidden {% endif %}">Opening in</span>{% endif %}
+        </h2>
+        {% if not casino_sale.is_sold_out and not casino_sale.is_ended %}
+            <div class="flex justify-end w-full">
+                <div class="bg-[#EAECEF] px-3 py-2 rounded-sm ">
+                    <p class="used-slots ">{{ casino_sale.total_participants }}/{{ casino_sale.max_participants }} Bought</p>
+                </div>
+            </div>
+        {%endif%}
+    </div>
+
+    <!-- <div class="flex w-full">
+    <h2 id="mobile-heading-container" class="font-semibold text-base text-left min-w-[max-content]">{{ casino_sale.booster_box.box_name }}{% if not casino_sale.is_sold_out or casino_sale.is_ended %}<span class="font-medium ml-1 text-[10px] text-[#525156]
+        {% if not casino_sale.has_to_start%} hidden {% endif %}">Opening in</span>{% endif %}</h2>
+        {% if casino_sale.is_sold_out and not casino_sale.is_ended %}
+           
+            <div class="flex justify-end w-full">
+                <div class="bg-[#EAECEF] p-1">
+                    <p class="flex text-[10px] used-slots">{{ casino_sale.total_participants }}/{{ casino_sale.max_participants }} Bought</p>
+                </div>
+            </div>
+        {%endif%}
+    </div> -->
+    {% if casino_sale.is_ended %}
+        <h2 class="uppercase font-bold text-2xl text-left">Sale ended</h2>
+        <div class="grid grid-cols-2">
+            <p class="text-xs text-[#525156] text-left">
+                Casino sale has Ended! Thank you for participating! Your support made this event a success. Stay tuned for more exciting events and exclusive offers coming soon!
+            </p>
+            <div class="place-items-end place-content-end">
+                <p class="text-[10px] text-[#525156]">{{ casino_sale.end_time_formatted_new }}</p>
+            </div>
+        </div>
+    {% elif casino_sale.is_sold_out %}
+        <h2 class="uppercase font-bold text-2xl text-left">Sold out</h2>
+        <div class="grid grid-cols-2">
+            <p class="text-xs text-[#525156] text-left">
+                Casino sale has Ended! Thank you for participating! Your support made this event a success. Stay tuned for more exciting events and exclusive offers coming soon!
+            </p>
+            <div class="place-items-end place-content-end">
+                <p class="text-[10px] text-[#525156]">{{ casino_sale.end_time_formatted_new }}</p>
+            </div>
+        </div>
+    {% elif not casino_sale.is_ended %}
+        <div id="mobile-timer-container" class="mt-[10px] flex justify-between text-center">
+            <div>
+                <p class="font-bold text-2xl days">{{ casino_sale.time_remaining.days }}</p>
+                <p class="uppercase text-xs font-semibold">Days</p>
+            </div>
+            <div>
+                <p class="font-bold text-2xl hours">{{ casino_sale.time_remaining.hours }}</p>
+                <p class="uppercase text-xs font-semibold">Hours</p>
+            </div>
+            <div>
+                <p class="font-bold text-2xl minutes">{{ casino_sale.time_remaining.minutes }}</p>
+                <p class="uppercase text-xs font-semibold">Minutes</p>
+            </div>
+            <div>
+                <p  class="font-bold text-2xl seconds">{{ casino_sale.time_remaining.seconds }}</p>
+                <p class="uppercase text-xs font-semibold">Seconds</p>
+            </div>
+        </div>
+    {% endif %}
+        <div id="mobile-buy-container" class="mt-8">
+            <div class="border border-[#EAECEF] rounded-sm h-[255px] flex justify-center items-center mb-[10px]">
+                {% if casino_sale.booster_box and casino_sale.booster_box.image %}
+                    <img class="w-[206px] h-[198px]" src="{{ casino_sale.booster_box.image.url }}" />
+                {% endif %}
+            </div>
+            {% if not casino_sale.is_ended and not casino_sale.is_sold_out  %}
+                {% if casino_sale.has_to_start %}
+                    <div class="grid">
+                        <p class="font-semibold capitalize">Sale Starts In</p>
+                        <div class="mt-[10px] flex justify-between ">
+                            <div class="text-[#E2464A]">
+                                <p class="font-bold sale-start-hours">{{ casino_sale.time_till_start_without_days.hours }}</p>
+                                <p class="uppercase text-xs font-semibold">Hours</p>
+                            </div>
+                            <div class="text-[#E2464A]">
+                                <p class="font-bold sale-start-minutes">{{ casino_sale.time_till_start_without_days.minutes }}</p>
+                                <p class="uppercase text-xs font-semibold">Minutes</p>
+                            </div>
+                            <div class="text-[#E2464A]">
+                                <p class="font-bold sale-start-seconds">{{ casino_sale.time_till_start_without_days.seconds }}</p>
+                                <p class="uppercase text-xs font-semibold">Seconds</p>
+                            </div>
+                        </div>
+                        <button type="button" disabled class="capitalize bg-[#EAECEF] text-[#A19F9E] w-full mt-5 py-3 rounded-sm">
+                            Buy Now
+                        </button>
+                    </div>
+                {% else %}
+                    <form method="post" action="{% url 'buy-slot' casino_sale.id %}" class="w-full grid">
+                        {% csrf_token %}
+                        <div class="flex justify-between items-center">
+                            <p class="font-semibold">Buy slot for </p>
+                            <p class="font-bold text-2xl">${{ casino_sale.entry_fee }}</p>
+                        </div>
+                        <div class="relative flex items-center mt-4">
+                            <input min="0" max="{{ casino_sale.max_participants }}" id="mobile_entry_quantity_input" name="quantity" placeholder="1" class="text-right border border-1 border-[#E3E3E3] w-full px-4 py-3   rounded-[3px] text-sm lg:text-sm" type="number" />
+                            <p class="absolute left-4 text-sm lg:text-sm">Quantity</p>
+                        </div>
+                        <button type="button" id="casino_card_mobile_buy_btn" class="capitalize bg-[#2EBD85] text-white w-full mt-5 py-3 rounded-sm">
+                            Buy Now
+                        </button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+    <div class="flex flex-col justify-start items-start w-full mt-[30px]">
+        <div class="flex gap-20 border-b w-full border-[#EAECEF] px-10">
+            <div class="flex flex-col items-center justify-between gap-y-2">
+                <a class="tab-link font-semibold text-xs lg:text-lg cursor-pointer" data-tab="my-slots">My Slots</a>
+                <img class="tab-indicator w-6 h-1 hidden" src="{% static 'icons/rectangle.svg' %}" />
+            </div>
+            <div class="flex flex-col items-center justify-between gap-y-2">
+                <a class="tab-link font-semibold text-xs lg:text-lg cursor-pointer" data-tab="all-slots">All Slots</a>
+                <img class="tab-indicator w-6 h-1 hidden" src="{% static 'icons/rectangle.svg' %}" />
+            </div>
+        </div>
+        <div class="w-full table-fixed mt-3 md:mt-0">
+            
+            <table class="w-full table-fixed mt-3">
+                <thead>
+                  <tr>
+                    <th scope="col" class="py-1 pl-4 pr-3 text-center font-semibold text-[#252C32] sm:pl-3">
+                      User
+                    </th>
+                    <th scope="col" class="px-3 py-1 text-center font-semibold text-[#252C32]">Slot</th>
+                    <th scope="col" class="px-3 py-1 text-center font-semibold text-[#252C32]">Price</th>
+                    <th scope="col" class="px-3 py-1 text-center font-semibold text-[#252C32]">Date</th>
+                  </tr>
+                </thead>
+              </table>
+            <div class="max-h-[400px] overflow-y-auto">
+                    <table class="w-full table-fixed max-h-[100px] overflow-y-auto">
+                        <tbody id="content-my-slots" class="bg-white tab-content hidden content-my-slots">
+                            {% if own_participants %}
+                                {% for participant in own_participants %}
+                                <tr class="even:bg-gray-50">
+                                    <td
+                                        class="capitalize text-center py-1 pl-4 pr-3 text-xs font-normal text-[#2EBD85] sm:pl-3">
+                                        {{ participant.user }}
+                                    </td>
+                                    <td class="whitespace-nowrap text-center px-3 py-1 text-xs text-[#252C32]">
+                                        1
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 text-center py-1 text-xs text-[#252C32]">
+                                        ${{ casino_sale.entry_fee }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 text-center py-1 text-xs text-[#252C32] ">
+                                        {{ participant.time_ago }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-gray-500 text-sm">
+                                        <div class="flex flex-col justify-center items-center min-h-[250px]">
+                                            <img src="{% static 'icons/no_slots.svg' %}" alt=""/>
+                                            <p class="text-sm font-semibold mt-2">Slot is empty</p>
+                                            <p class="text-[#A19F9E] text-xs mt-[6px]">There's currently no slots available at the moment.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                        <tbody id="content-all-slots" class="bg-white tab-content hidden content-all-slots">
+                            {% if participants %}
+                            {% for participant in participants %}
+                                <tr class="even:bg-gray-50">
+                                    <td
+                                        class="capitalize whitespace-nowrap text-center py-1 pl-4 pr-3 text-xs font-normal text-[#2EBD85] sm:pl-3">
+                                        {{ participant.user }}
+                                    </td>
+                                    <td class="whitespace-nowrap text-center px-3 py-1 text-xs text-[#252C32]">
+                                        1
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 text-center py-1 text-xs text-[#252C32]">
+                                        ${{ casino_sale.entry_fee }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 text-center py-1 text-xs text-[#252C32] ">
+                                        {{ participant.time_ago }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-gray-500 text-sm">
+                                        <div class="flex flex-col justify-center items-center min-h-[250px]">
+                                            <img src="{% static 'icons/no_slots.svg' %}" alt=""/>
+                                            <p class="text-sm font-semibold mt-2">Slot is empty</p>
+                                            <p class="text-[#A19F9E] text-xs mt-[6px]">There's currently no slots available at the moment.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mt-[30px] md:mt-[50px]">
+    <div class="text-left mt-[30px] px-6 md:px-0">
+        <div class="flex justify-between">
+            <p class="font-semibold md:text-[28px]">Booster Box sale</p>
+            <div class="flex gap-x-2 items-center">
+                <a href="{% url 'show-all-cards' casino_sale.id %}" class="font-normal text-xs md:text-sm">View all</a>
+                <img class="w-2 h-2" src="{% static 'icons/line-right.svg' %}" />
+            </div>
+        </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 md:gap-x-5 mt-[10px]">
+    {% for casino in casino_sales %}
+    {% with casino.booster_box as box %}
+        <div class="border border-[#EAECEF] rounded-lg relative hidden md:block">
+            <a class="absolute top-0 left-0 w-full h-full z-50" href="{% url 'casino-detail' casino.id %}"></a>
+            <div class="flex flex-col p-5">
+                <div class="flex items-center gap-x-4 px-2">                           
+                    <div class="h-4 w-4 absolute right-2 top-2 bg-white rounded-full grid place-content-center">
+                        <button onclick="toggleFavorite('{{ card.id }}')" class="h-3 w-3 card-{{ card.id }}">
+                                <span 
+                                    {% if card in favorite_cards %}
+                                    data-icon="heart-filled" 
+                                    {% else %}
+                                    data-icon="heart"
+                                    {% endif %}
+                                ></span>
+                        </button>
+                    </div>
+                    <div class="w-[100px] h-[100px] grid place-items-center">
+                        {% if box.image %}
+                            <img src="{{ box.image.url }}" alt="" />
+                        {% endif %}
+                    </div>
+                    <div class="flex flex-col justify-start items-start w-full gap-[5px]">
+                        <h3 class="text-base text-[#252C32] font-medium">{{ box.box_name }}</h3>
+                        <p class="text-[#2EBD85] text-[10px] capitalize">Entry fee</p>
+                        <span class="text-lg font-bold text-[#252C32]">${{ casino.entry_fee|floatformat:0 }}</span>
+                        <div class="flex justify-between items-center border border-1 border-[#DDE2E4] rounded-[3px] px-[6px] py-1 w-full">
+                            <p class="text-xs">
+                                {{ box.grade }}
+                            </p>
+                            <img src="{% static 'icons/line.svg' %}" />
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-[#EAECEF] mt-3 p-1 rounded-sm flex items-center justify-center gap-x-1">
+                    <img class="w-3 h-3 relative -top-0.5" src="{% static 'icons/clock.svg' %}" />
+                </div>
+            </div>
+        </div>
+        <div class="md:hidden border border-[#EAECEF] p-3 relative">
+            <a class="absolute w-full h-full z-50 top-0 left-0" href="{% url 'casino-detail' casino.id %}"></a>
+            <div class="grid relative gap-x-[10px] w-full">                           
+                <div class="flex justify-center">
+                    <div class="absolute right-0 top-0 rounded-full grid place-content-center">
+                        <button onclick="toggleFavorite('{{ card.id }}')" class="h-3 w-3 card-{{ card.id }}">
+                                <span 
+                                    {% if card in favorite_cards %}
+                                    data-icon="heart-filled" 
+                                    {% else %}
+                                    data-icon="heart"
+                                    {% endif %}
+                                ></span>
+                        </button>
+                    </div>
+                    <div class="grid place-items-center">
+                        {% if box.image %}
+                            <img class="object-contain h-[80px] w-[80px]" src="{{ box.image.url }}" alt="" />
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="flex flex-col justify-start items-start w-full gap-[5px]">
+                    <h3 class="text-xs text-[#252C32] font-semibold w-2/3">{{ box.box_name }}</h3>
+                    <p class="text-[#2EBD85] text-[10px]">Slots: {{ casino.total_participants }}/{{ casino.max_participants }}</p>
+                    <span class="text-sm font-bold text-[#252C32]">${{ casino.entry_fee|floatformat:0 }}</span>
+                </div>
+                <div class="col-span-2 mt-[10px] flex justify-between text-[#E2464A] w-full text-center">
+                    <div>
+                        <p class="font-bold">{{ casino_sale.time_till_start_without_days.hours }}</p>
+                        <p class="uppercase text-xs font-semibold">Hours</p>
+                    </div>
+                    <div>
+                        <p class="font-bold">{{ casino_sale.time_till_start_without_days.minutes }}</p>
+                        <p class="uppercase text-xs font-semibold">Minutes</p>
+                    </div>
+                    <div>
+                        <p class="font-bold">{{ casino_sale.time_till_start_without_days.seconds }}</p>
+                        <p class="uppercase text-xs font-semibold">Seconds3</p>
+                    </div>
+                </div>
+            </div>
+        </div>        
+    {% endwith %}
+    {% endfor %} 
+    </div>
+</div>
+<script src="{% static 'js/casinoDetail.js' %}"></script>
+<script src="{% static 'js/toastMessage.js' %}"></script>
+
+{% endblock %}

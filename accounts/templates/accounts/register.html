@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% load static %}
+{% load socialaccount %}
+{% block content %}
+{% block header %}{% endblock %}
+{% block topbar %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block footer-explore %}{% endblock %}
+
+<div class="lg:absolute lg:top-1/2 lg:left-40 lg:transform lg:-translate-x-1/2 lg:-translate-y-1/2 lg:pb-[22px]">
+<!-- <div class="h-screen flex items-center pb-[22px] "> -->
+    <div class="max-w-[1240px] md:w-[480px] mx-auto bg-white md:border border-[#DDE2E4] rounded-2xl mt-5 px-6 md:p-12">
+        <div class="flex flex-col justify-start w-full gap-[20px]">
+            <div class="flex flex-row justify-start items-center">
+                <a href="/">
+                    <img src="{% static 'images/logo.svg' %}" alt="logo" />
+                </a>
+            </div>
+            <h2 class="text-2xl md:text-[32px] font-kumbh-sans font-bold">Sign Up</h2>
+            <!-- form -->
+            <div class="mt-[50px] md:mt-[30px]">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="grid gap-y-4">
+                        {% if not password_phase %}
+                        <div class="grid gap-y-4">
+                            <div class="flex flex-col justify-start items-start w-full gap-2.5">
+                                <span class="text-sm md:text-base font-normal capitalize">Email / Phone</span>
+                                <input type="email" name="email" required class="w-full p-2 border rounded h-[50px]
+                                {% for message in messages %}
+                                {% if " email" in message.tags %} border-red-500 {% endif %} {% endfor %}">
+                                {% if messages %}
+                                {% for message in messages %}
+                                {% if "email" in message.tags %}
+                                <div class="p-2 mb-4 text-sm text-red-600 bg-red-50 rounded-md">
+                                    <p class="text-red-500">{{ message }}</p>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                {% endif %}
+
+                            </div>
+                        
+                        </div>
+                        {% else %}
+                        <input type="hidden" name="email" value="{{ request.session.register_email }}">
+                        <div class="grid gap-y-4">
+                            <div class="flex flex-col justify-start items-start w-full gap-2.5">
+                                <span class="text-sm md:text-base font-normal capitalize">Password</span>
+                                <input type="password" name="password" required class="w-full p-2 border rounded
+                                {% for message in messages %}
+                                    {% if " password" in message.tags %} border-red-500 {% endif %} {% endfor %}">
+                                {% if messages %}
+                                {% for message in messages %}
+                                {% if " password" in message.tags %}
+                                <div class="p-2 mb-4 text-sm text-red-600 bg-red-50 rounded-md">
+                                    <p class="text-red-500">{{ message }}</p>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                {% endif %}
+
+                            </div>
+                            {% if messages %}
+                            {% for message in messages %}
+                            {% if "terms" in message.tags %}
+                            <div class="p-2 mb-4 text-sm text-red-600 bg-red-50 rounded-md">
+                                <div class="text-red-500">{{ message }}</div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                            {% endif %}
+                            
+                        </div>
+                        {% endif %}
+                        <div class="flex flex-row justify-between items-center w-full">
+                            <div class="flex flex-row justify-start items-center gap-x-1 md:gap-[14px]">
+                                <input type="checkbox" name="accept_terms" id="terms_and_conditions" class="h-2.5 w-2.5 md:h-5 md:w-5" required />
+                                <label for="terms_and_conditions" class="text-[10px] md:text-xs text-[#525156]">
+                                    Accept all terms & Conditions</label>
+                            </div>
+                        </div>
+                        <!-- <div class="flex flex-row justify-between items-center w-full">
+                            <div class="flex flex-row justify-start items-center gap-x-1 md:gap-[14px]">
+                                <input type="checkbox" name="accept_terms" id="terms_and_conditions" class="h-2.5 w-2.5 md:h-5 md:w-5
+                                {% for message in messages %}
+                            {% if " terms" in message.tags %} border-red-500 {% endif %} {% endfor %}" />
+                                <label for=" terms_and_conditions" class="text-[10px] md:text-xs text-[#525156]">
+                                    Accept all terms & Conditions</label>
+                            </div>
+                        </div> -->
+                        {% if not password_phase %}
+                            <button type="submit" class="bg-primary text-black w-full py-3 rounded font-semibold h-[50px] text-[20px]">
+                                Continue
+                            </button>
+                        {% else %}
+                        
+                            <button
+                                class="capitalize bg-primary text-black clear-start w-full py-2.5 md:py-3 md:text-[20px] rounded-[4px] font-semibold mt-[30px]">
+                                Sign Up
+                            </button>
+                        {% endif %}
+                        <div class="w-full text-center">
+                            <span class="text-[#525156] text-xs">Already have account? <a
+                                    class="text-[#1E2329] font-medium" href="{% url 'login' %}">Login</a></span>
+                        </div>
+                        <div class="flex flex-row justify-center items-center w-full md:w-[40%] gap-2">
+                            <div class="h-[003px] bg-[#1E2329] bg-opacity-20 flex-1"></div>
+                            <span class="text-[10px]">OR</span>
+                            <div class="h-[003px] bg-[#1E2329] bg-opacity-20 flex-1"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- sperator -->
+
+
+            <!-- accounts -->
+            <div class="grid gap-y-3 w-full place-items-center">
+                <a href="{% provider_login_url 'google' %}" class="">
+                    <img src="{% static 'images/google-button.svg' %}" alt="google" class="h-[50px]" />
+                </a>
+                <a href="{% provider_login_url 'facebook' %}" class="">
+                    <img src="{% static 'images/facebook-button.svg' %}" alt="facebook" class="h-[50px]" />
+                </a>
+                <a href="{% provider_login_url 'apple' %}" class="">
+                    <img src="{% static 'images/apple-button.svg' %}" alt="apple" class="h-[50px]" />
+                </a>
+            </div>
+
+            <!-- <div class="flex flex-row justify-center items-center gap-12">
+                <a href="{% provider_login_url 'instagram' %}" class="h-16 w-16">
+                    <img src="{% static 'images/instagram.svg' %}" alt="instagram" />
+                </a>
+                <a href="{% provider_login_url 'twitter_oauth2' %}" class="h-16 w-16">
+                    <img src="{% static 'images/twitter.svg' %}" alt="twitter" />
+                </a>
+                <a href="{% provider_login_url 'google' %}" class="h-16 w-16">
+                    <img src="{% static 'images/google.svg' %}" alt="google" />
+                </a>
+                <a href="{% provider_login_url 'apple' %}" class="h-16 w-16">
+                    <img src="{% static 'images/apple.svg' %}" alt="apple" />
+                </a>
+                <a href="{% provider_login_url 'facebook' %}" class="h-16 w-16">
+                    <img src="{% static 'images/facebook.svg' %}" alt="facebook" />
+                </a>
+            </div> -->
+            <div class="mt-4">
+                {% for message in messages %}
+                {% if message.tags == 'error' %}
+                <p class="text-red-600">{{ message }}</p>
+                {% endif %}
+                {% if message.tags == 'success' %}
+                <p class="text-green-600">{{ message }}</p>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

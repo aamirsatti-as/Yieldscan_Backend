@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="max-w-[1240px] mt-[62px] mx-auto flex flex-row justify-between items-stretch gap-[26px]">
+    <div class="hidden md:block bg-white border-2 border-[#DDE2E4] rounded-lg">
+        <div class="px-[25px] py-5">
+            <h2 class="md:text-2xl font-semibold capitalize">{{ user.first_name }} {{ user.last_name }}</h2>
+            <span class="font-normal text-sm text-[#525156]">Manage your profile settings</span>
+        </div>
+
+        <div class="h-[1px] w-full bg-[#F5F5F5]"></div>
+
+        <div>
+            <nav class="flex flex-col justify-start items-start p-[25px] w-full">
+                <a href="{% url 'profile' %}"
+                    class="p-5 w-full {% if '/auth/profile' in request.path %}bg-[#DBE2FF] rounded-md{% endif %}">
+                    <div class="flex flex-row items-center justify-start w-full gap-4">
+                        <div class="w-5 h-5">
+                            <span data-icon="info" class=""></span>
+                        </div>
+                        <span
+                            class="text-base font-medium capitalize {% if '/auth/profile' in request.path %}text-[#1E2329]{% endif %}">
+                            profile
+                        </span>
+                    </div>
+                </a>
+
+                <a href="{% url 'history' %}" class="w-full p-5 {% if request.path == '/auth/history/' %}bg-[#DBE2FF] rounded-md{% endif %}">
+                    <div class="flex flex-row items-center justify-start gap-4">
+                        <div class="w-5 h-5">
+                            <span data-icon="info" class=""></span>
+                        </div>
+                        <span class="text-base font-medium text-[#252C32] capitalize {% if request.path == '/auth/history/' %}text-[#1E2329]{% endif %}">
+                            history
+                        </span>
+                    </div>
+                </a>
+
+                <a href="{% url 'favorites' %}"
+                    class="p-5 w-full {% if request.path == '/auth/favorites/' %}bg-[#DBE2FF] rounded-md{% endif %}">
+                    <div class="flex flex-row items-center justify-start gap-4">
+                        <div class="w-5 h-5">
+                            <span data-icon="info" class=""></span>
+                        </div>
+                        <span class="text-base font-medium text-[#252C32] capitalize {% if request.path == '/auth/favorites/' %}text-[#1E2329]{% endif %}">
+                            Favorites
+                        </span>
+                    </div>
+                </a>
+
+                <a href="{% url 'portfolio' %}" class="w-full p-5 {% if request.path == '/auth/portfolio/' %}bg-[#DBE2FF] rounded-md{% endif %}">
+                    <div class="flex flex-row items-center justify-start gap-4">
+                        <div class="w-5 h-5">
+                            <span data-icon="info" class=""></span>
+                        </div>
+                        <span class="text-base font-medium text-[#252C32] capitalize {% if request.path == '/auth/portfolio/' %}text-[#1E2329]{% endif %}">
+                            Portfolio
+                        </span>
+                    </div>
+                </a>
+
+                <a href="{% url 'owned' %}"
+                    class="p-5 w-full {% if request.path == '/auth/owned/' %}bg-[#DBE2FF] rounded-md{% endif %}">
+                    <div class="flex flex-row items-center justify-start gap-4">
+                        <div class="w-5 h-5">
+                            <span data-icon="info" class=""></span>
+                        </div>
+                        <span class="text-base font-medium text-[#252C32] capitalize {% if request.path == '/auth/owned/' %}text-[#1E2329]{% endif %}">
+                            Owned
+                        </span>
+                    </div>
+                </a>
+
+                <a href="" class="w-full p-5">
+                    <div class="flex flex-row items-center justify-start gap-4">
+                        <div class="w-5 h-5">
+                            <span data-icon="info" class=""></span>
+                        </div>
+                        <span class="text-base font-medium text-[#252C32] capitalize">
+                            Message Center
+                        </span>
+                    </div>
+                </a>
+
+                <a href="{% url 'wallet' %}" class="w-full p-5 {% if request.path == '/auth/wallet/' %}bg-[#DBE2FF] rounded-md{% endif %}">
+                    <div class="flex flex-row items-center justify-start gap-4">
+                        <div class="w-5 h-5">
+                            <span data-icon="info" class=""></span>
+                        </div>
+                        <span class="text-base font-medium text-[#252C32] capitalize {% if request.path == '/auth/wallet/' %}text-[#1E2329]{% endif %}">
+                            Wallet
+                        </span>
+                    </div>
+                </a>
+
+                <a href="{% url 'collections' %}" class="w-full p-5 {% if '/auth/collections/' in request.path %}bg-[#DBE2FF] rounded-md{% endif %}">
+                    <div class="flex flex-row items-center justify-start gap-4">
+                        <div class="w-5 h-5">
+                            <span data-icon="info" class=""></span>
+                        </div>
+                        <span class="text-base font-medium text-[#252C32] capitalize {% if request.path == '/auth/collections/' %}text-[#1E2329]{% endif %}">
+                            Collections
+                        </span>
+                    </div>
+                </a>
+
+                <a href="" class="w-full p-5">
+                    <div class="flex flex-row items-center justify-start gap-4">
+                        <div class="w-5 h-5">
+                            <span data-icon="info" class=""></span>
+                        </div>
+                        <span class="text-base font-medium text-[#252C32] capitalize">
+                            Settings
+                        </span>
+                    </div>
+                </a>
+
+                <a href="{% url 'logout' %}" class="w-full p-5">
+                    <div class="flex flex-row items-center justify-start gap-4">
+                        <div class="w-5 h-5">
+                            <span data-icon="info" class=""></span>
+                        </div>
+                        <span class="text-base font-medium text-[#252C32] capitalize">
+                            Logout
+                        </span>
+                    </div>
+                </a>
+            </nav>
+        </div>
+    </div>
+    <div class="flex flex-col w-full md:bg-white md:border-2 md:border-[#DDE2E4] md:rounded-lg md:p-12 px-6 md:px-0">
+        {% block details %}
+        <p>Details</p>
+        {% endblock %}
+    </div>
+</div>
+<div class="flex flex-col">
+    {% block details_raw %}
+    {% endblock %}
+</div>
+{% endblock %}

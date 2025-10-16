@@ -1,0 +1,57 @@
+{% load static %}
+
+<table class="w-full border-collapse min-w-[900px] overflow-x-scroll">
+    <thead>
+        <tr class="border-b border-[#EAECEF] text-left">
+        <th class="font-semibold text-base pb-3 text-[#1E2329]">Item</th>
+        <th class="font-semibold text-base pb-3 text-[#1E2329]">Your Bid</th>
+        <th class="font-semibold text-base pb-3 text-[#1E2329]">Highest Bid</th>
+        <th class="font-semibold text-base pb-3 text-[#1E2329]">Order Type</th>
+        <th class="font-semibold text-base pb-3 text-[#1E2329]">Quantity</th>
+        <th class="font-semibold text-base pb-3 text-[#1E2329]">Lowest Ask</th>
+        <th class="font-semibold text-base pb-3 text-[#1E2329]">Grade</th>
+        <th class="font-semibold text-base pb-3 text-[#1E2329]">Date</th>
+        <th class="font-semibold text-base pb-3 text-[#1E2329]">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr class="border-b border-[#EAECEF]">
+            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">{{ order.card }}</td>
+            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+            {{ order.client_bid|default:"—" }}
+            </td>
+            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+            {{ order.highest_bid|default:"—" }}
+            </td>
+            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                {{ order.type }}
+            </td>
+            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                {{ order.quantity }}
+            </td>
+            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                {{ order.lowest_ask }}
+            </td>
+            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                {{ order.grade }}
+            </td>
+            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                {{ order.date }}
+            </td>
+            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5 flex">
+                <span class="ml-2 bg-[#D5F2E7] p-2 flex justify-center items-center rounded-[18px]">
+                    <img src="/static/icons/edit.svg" alt="'edit"/>
+                </span>
+                <span class="ml-2 bg-[#FDDADF] p-2 flex justify-center items-center rounded-[18px]">
+                    <img src="/static/icons/delete.svg" alt="delete"/>
+                </span>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="12" class="text-center py-6 text-[#999]">No active orders available.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

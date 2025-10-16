@@ -1,0 +1,297 @@
+{% extends 'base.html' %} 
+{% load static %} 
+{% block content %}
+{% load component_tags %}
+<!--  -->
+<div class="hidden">
+    {% for filter in selected_filters %}
+        <p class="selected-filter">{{ filter }}</p>
+    {% endfor %}
+</div>
+<p id="raw_grade" class="hidden">{{ raw_grade }}</p>
+<div id="modal" 
+class="fixed top-0 left-0 h-screen w-screen bg-white z-[10000] md:hidden opacity-0 invisible -translate-x-full transition-transform duration-600 ease-out overflow-auto">
+    <div id="sort-content" class="hidden">
+        <div class="flex items-center justify-between p-4">
+            <div></div>
+            <p class="text-[#1E2329] font-semibold text-2xl">Sort</p>
+            <button
+              class="close-modal-btn cross items-center justify-center bg-[#F5F5F2] rounded-full w-8 h-8"
+            >
+              x
+            </button>
+        </div>
+        <div id="sort-list" class="px-6 grid">
+        </div>
+    </div>
+    <div id="filter-content">
+        <div class="flex items-center justify-between p-4">
+            <div></div>
+            <p class="text-[#1E2329] font-semibold text-2xl">Filter By</p>
+            <button
+              class="close-modal-btn cross items-center justify-center bg-[#F5F5F2] rounded-full w-8 h-8"
+            >
+              x
+            </button>
+        </div>
+        <div class="selected-items flex items-center flex-wrap gap-2 bg-gray-50 rounded-lg mt-4 ms-2">
+            <!-- <div class="selected-filters "></div> -->
+        </div>
+        <form method="get">
+            <div id="filter-list" class="grid">
+                <div class="h-[1px] bg-[#1e232933] w-full mt-5 md:mt-6 md:hidden"></div>
+            </div>
+            <div class="grid m-5">
+                <button class="bg-primary py-3 font-medium rounded-[3px]">See Results</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="px-[25px] mt-4">
+    <p class="text-xs md:text-base md:hidden text-[#525156]">Home / Search</p>
+    <div class="max-w-[1240px] mx-auto mt-5 flex flex-row justify-between items-center gap-10">
+        <!-- tabs -->
+        <div class="flex flex-row items-center justify-end mt-4">
+            <div class="md:hidden flex flex-row items-center justify-between gap-5">
+                <div 
+                    class="z-[1000] flex flex-row items-center justify-between border px-2 md:p-4 py-1.5 md:w-[200px] gap-x-1.5 md:gap-x-16 rounded-md md:rounded-none relative">
+                    <span class="text-xs md:text-base font-normal capitalize"><span class="md:hidden inline"></span>Filter<span class="text-#EAECEF"> |</span></span>
+                    <button id="open-filter-modal-button" class="w-3 h-3">
+                        <img class="block md:hidden" src="{% static 'images/arrow.svg' %}" />
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-row items-center justify-end mt-4">
+            <div class="flex flex-row items-center justify-between gap-5">
+                <span class="text-sm font-normal hidden md:block">Sort by:</span>
+                <div x-data="{ isModalOpen: false }"
+                    class="z-[1000] flex flex-row items-center justify-between border px-2 md:p-4 py-1.5 md:w-[200px] gap-x-1.5 md:gap-x-16 rounded-md md:rounded-none relative">
+                    <span class="text-xs md:text-base font-normal capitalize"><span class="md:hidden inline">Sort: </span>Featured</span>
+                    <button id="open-sort-modal-btn" class="w-3 h-3 md:hidden">
+                        <img class="md:hidden" src="{% static 'icons/sort.svg' %}" />
+                        <img class="hidden md:block" src="{% static 'images/arrow.svg' %}" />
+                    </button>
+                    <button @click="isModalOpen = true" class="w-3 h-3 hidden md:block">
+                        <img class="md:hidden" src="{% static 'icons/sort.svg' %}" />
+                        <img class="hidden md:block" src="{% static 'images/arrow.svg' %}" />
+                    </button>
+                    <div x-show="isModalOpen" @click.away="isModalOpen = false" x-transition
+                        class="absolute right-0 space-y-2.5 z-10 rounded-md shadow-lg top-[30px] md:top-12 h-48 w-[200px] bg-white py-2">
+                        <nav class="flex flex-col items-start justify-start border">
+                            <button onclick="updateSortParam('-added_on')" class="capitalize font-medium text-sm text-[#525156] px-4 py-2">Recently Added </button>
+                            <button onclick="updateSortParam('-price')" class="capitalize font-medium text-sm text-[#525156] px-4 py-2">Price High to Low </button>
+                            <button onclick="updateSortParam('price')" class="capitalize font-medium text-sm text-[#525156] px-4 py-2">Price Low to High </button>
+                            <button onclick="updateSortParam('name')" class="capitalize font-medium text-sm text-[#525156] px-4 py-2">Name A-Z </button>
+                            <button onclick="updateSortParam('-name')" class="capitalize font-medium text-sm text-[#525156] px-4 py-2">Name Z-A </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="max-w-[1240px] mx-auto flex flex-row justify-between items-start gap-10">
+    <form class="hidden md:block">
+        <!-- filters dropdowns -->
+        <div class="w-[312px] flex flex-col justify-start items-start gap-6">
+            <!-- category -->
+            <div class="flex flex-col justify-start items-start gap-4 w-full">
+                <div class="w-full flex flex-row justify-between items-center cursor-pointer" id="categories-toggle">
+                    <h3 class="text-base font-medium uppercase">Category</h3>
+                    <button class="" type="button">
+                        <div class="h-3 w-3">
+                            <span data-icon="arrow" id="category-arrow"></span>
+                        </div>
+                    </button>
+                </div>
+                <div class="categories-container hidden">
+                    <div class="flex flex-col justify-start items-start gap-3 ">
+                        {% for category in categories %}
+                            <div class="hidden categories-list">
+                                <p class="category-name">{{ category.name }}</p>
+                                <p class="category-id">{{ category.id }}</p>
+                            </div>
+                            <label class="flex flex-row justify-start items-center gap-3 cursor-pointer">
+                                <input type="radio" name="category" value="{{ category.id }}" />
+                                <span class="text-sm font-normal text-[#475156]">{{ category.name }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="h-1 w-full border-t-2"></div>
+            <!-- price range -->
+            <div class="flex flex-col justify-start items-start gap-4 w-full">
+                <div class="w-full flex flex-row justify-between items-center cursor-pointer" id="price-toggle">
+                    <h3 class="text-base font-medium uppercase">Prices</h3>
+                    <button class="" type="button">
+                        <div class="h-3 w-3">
+                            <span data-icon="arrow" id="price-arrow"></span>
+                        </div>
+                    </button>
+                </div>
+                <div class="price-container hidden">
+                    <div class="flex flex-col justify-start items-start gap-3">
+                        <div class="flex flex-row justify-start items-center gap-3">
+                            <input name="price" type="radio" id="cat-1" value="all"/>
+                            <label for="cat-1" class="text-sm font-normal text-[#475156]" >All Price</label>
+                        </div>
+                        <label class="flex flex-row justify-start items-center gap-3 cursor-pointer">
+                            <input name="price" type="radio" value="0_20" />
+                            <span class="text-sm font-normal text-[#475156]">Under $20</span>
+                        </label>
+                        <label class="flex flex-row justify-start items-center gap-3 cursor-pointer">
+                            <input name="price" type="radio" value="25_100" />
+                            <span class="text-sm font-normal text-[#475156]">$25 to $100</span>
+                        </label>
+                        <label class="flex flex-row justify-start items-center gap-3 cursor-pointer">
+                            <input name="price" type="radio" value="100_300" />
+                            <span class="text-sm font-normal text-[#475156]">$100 to $300</span>
+                        </label>
+                        <label class="flex flex-row justify-start items-center gap-3 cursor-pointer">
+                            <input name="price" type="radio" value="500_1000" />
+                            <span class="text-sm font-normal text-[#475156]">500 to $1,000</span>
+                        </label>
+                        <label class="flex flex-row justify-start items-center gap-3 cursor-pointer">
+                            <input name="price" type="radio" value="5000_10000" />
+                            <span class="text-sm font-normal text-[#475156]">$5,000 to $10,000</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="h-1 w-full border-t-2"></div>
+            <!-- graded -->
+            <div class="flex flex-col justify-start items-start gap-4 w-full" >
+                <div class="w-full flex flex-row justify-between items-center cursor-pointer" id="grade-toggle">
+                    <h3 class="text-base font-medium uppercase">Graded</h3>
+                    <button class="">
+                        <div class="h-3 w-3">
+                            <span data-icon="arrow" id="grade-arrow"></span>
+                        </div>
+                    </button>
+                </div>
+                <div class="grade-container hidden">
+                    <div class="flex flex-col justify-start items-start gap-3">
+                        <label class="flex flex-row justify-start items-center gap-3 cursor-pointer">
+                            <input name="grade" type="radio" value="no" />
+                            <span class="text-sm font-normal text-[#475156]">No</span>
+                        </label>
+
+                        <label class="flex flex-row justify-start items-center gap-3 cursor-pointer">
+                            <input name="grade" type="radio" value="yes" />
+                            <span class="text-sm font-normal text-[#475156]">Yes</span>
+                        </label>
+
+                        <label class="flex flex-row justify-start items-center gap-3 cursor-pointer">
+                            <input name="grade" type="radio" value="not_specified" />
+                            <span class="text-sm font-normal text-[#475156]">Not Specified</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="h-1 w-full border-t-2"></div>
+            <!-- condition -->
+            <div class="flex flex-col justify-start items-start gap-4 w-full">
+                <div class="w-full flex flex-row justify-between items-center cursor-pointer" id="condition-toggle">
+                    <h3 class="text-base font-medium uppercase">Condition</h3>
+                    <button class="">
+                        <div class="h-3 w-3">
+                            <span data-icon="arrow" id="condition-arrow"></span>
+                        </div>
+                    </button>
+                </div>
+                <div class="condition-container hidden">
+                    <div class="flex flex-col justify-start items-start gap-3">
+                        <label class="flex flex-row justify-start items-center gap-3 cursor-pointer">
+                            <input name="condition" type="radio" value="new" />
+                            <span class="text-sm font-normal text-[#475156]">New</span>
+                        </label>
+                        <label class="flex flex-row justify-start items-center gap-3 cursor-pointer">
+                            <input name="condition" type="radio" value="used" />
+                            <span class="text-sm font-normal text-[#475156]">Used</span>
+                        </label>
+                        <label class="flex flex-row justify-start items-center gap-3 cursor-pointer">
+                            <input name="condition" type="radio" value="not_specified" />
+                            <span class="text-sm font-normal text-[#475156]">Not Specified</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="h-1 w-full border-t-2"></div>
+        </div>
+    </form>
+
+    <!-- searched items -->
+    <div class="flex-1 flex flex-col justify-start items-start">
+        <div class="hidden w-full bg-[#F5F5F2] md:flex flex-row justify-start items-center rounded-[4px] py-4 px-6 gap-4 mt-5">
+            <button id="clear-filters" class="text-sm font-medium bg-white rounded-md px-2 py-1">Clear All</button>
+            <h3 class="text-sm font-medium text-gray-500 uppercase">Active Filters :</h3>
+            <div class="float-right">
+                <span>{{ pagination.total }} results found</span>
+            </div>
+            
+        </div>
+        <div class="min-h-[450px]">
+            <div id="search-results" class="grid grid-cols-2 lg:grid-cols-3 w-full mt-5 md:pl-6 md:gap-4">
+                {% for card in cards %}
+                    {% component "card" card=card is_favorite="True" / %}
+                {% endfor %}
+            </div>
+        </div>
+        {% with pagination.params as params %}
+        <div id="pagination" class="flex justify-center w-full mt-4 mb-8 items-center gap-2">
+            {% if pagination.has_prev %}
+            <a href="?page={{ pagination.page|add:-1 }}&limit={{ pagination.limit }}&{{ params }}" class="w-3 h-3 md:w-5 md:h-5 rounded-full border border-1 flex">
+                <img src="{% static 'icons/arrow-left.svg' %}" />
+            </a>
+            {% else %}
+            <a class="w-3 h-3 md:w-5 md:h-5 rounded-full border border-1 border-[#E4E7E9] flex">
+                <img src="{% static 'icons/arrow-left.svg' %}" />
+            </a>
+            {% endif %}
+            
+
+            {% for num in pagination.page_range %}
+                {% if num == pagination.page %}
+                    <div class="w-5 h-5 md:w-8 md:h-8 rounded-full bg-[#F6D658] grid place-items-center">
+                        <p class="text-xs font-semibold">{{ num }}</p>
+                    </div>
+                    
+                {% elif num|add:1 not in pagination.page_range %}
+                   <a href="?page={{ num }}&limit={{ pagination.limit }}&{{ params }}" class="border-[#E4E7E9] border border-1 w-5 h-5 md:w-8 md:h-8 rounded-full grid place-items-center">
+                        <p class="text-xs font-normal">{{ num }}</p>
+                    </a>
+                    <!-- Not show ellipsis for last record -->
+                    {% if num != pagination.total_pages %}
+                        <span class="text-xs font-normal">...</span>
+                    {% endif %}
+                {% else %}
+                    <!-- Show the number normally for pages not in the above conditions -->
+                    <a href="?page={{ num }}&limit={{ pagination.limit }}&{{ params }}" class="border-[#E4E7E9] border border-1 w-5 h-5 md:w-8 md:h-8 rounded-full grid place-items-center">
+                        <p class="text-xs font-normal">{{ num }}</p>
+                    </a>
+                {% endif %}
+            {% endfor %}
+
+
+            
+            {% if pagination.has_next %}
+            <a href="?page={{ pagination.page|add:1 }}&limit={{ pagination.limit }}&{{ params }}" class="w-3 h-3 md:w-5 md:h-5 rounded-full border border-1 flex">
+                <img src="{% static 'icons/arrow-right.svg' %}" />
+            </a>
+            {% else %}
+            <a class="w-3 h-3 md:w-5 md:h-5 rounded-full border border-1 border-[#E4E7E9] flex">
+                <img src="{% static 'icons/arrow-right.svg' %}" />
+            </a>
+            {% endif %}
+        </div>
+        {% endwith %}
+    </div>
+</div>
+<script src="{% static 'js/search.js' %}"></script>
+<script src="{% static 'js/toggleCardFavorite.js' %}"></script>
+<script src="{% static 'js/cardGradeSelector.js' %}"></script>
+{% endblock %}

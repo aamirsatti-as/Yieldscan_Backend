@@ -1,0 +1,202 @@
+{% load static %}
+
+<div class="border border-[#EAECEF] px-[30px] rounded-sm mt-[40px]">
+        
+    <div  class="border-b border-[#EAECEF] pt-[40px]">
+        <div class="flex w-full border-b border-[#EAECEF] gap-7 items-center">
+            <div id="graph-select" class="flex cursor-pointer text-xl font-semibold text-[#1E2329] items-center pb-2 "
+            onclick="handleSelectOption('Graph')">
+            <div class="relative">
+                <div id="border-for-graph" class="absolute w-[60px] top-[17px] left-[10px] border-b-4 rounded-md border-[#F6D658] h-1">
+
+                </div>
+            </div>
+                <span class="pl-2">Graph</span>
+            </div>
+
+            <div id="order-select" class="flex cursor-pointer text-[#A19F9E] text-xl font-medium items-center pb-2 rounded-md "
+            onclick="handleSelectOption('Order')">
+                <div class="relative">
+                    <div id="border-for-orders" class="absolute w-[60px] top-[17px] left-[35px] rounded-md border-[#F6D658] h-1 ">
+
+                    </div>
+                </div>
+                <span class="pl-2">My Orders</span>
+            </div>
+        </div>
+        
+    </div>
+
+    <div id="orders-container" class="hidden">
+        <div class="border-b border-[#EAECEF]  pt-[40px]">
+            <div class="flex w-full border-b border-[#EAECEF] gap-7 items-center">
+                <div id="auction-select" class="flex text-xl cursor-pointer font-medium text-[#1E2329] items-center pb-2 rounded-md "
+                onclick="handleAuctionAndOrderSelect('Auction')">
+                    <div class="relative">
+                        <div id="border-for-auction" class="absolute w-[37px] top-[17px] left-[25px] rounded-md border-[#F6D658] h-1 border-b-4">
+                        </div>
+                    </div>
+                    <span class="pl-2">Auction</span>
+                </div>
+                <div id="order-select-option" class="flex text-xl cursor-pointer text-[#A19F9E] font-medium items-center pb-2 rounded-md border-[#F6D658]"
+                onclick="handleAuctionAndOrderSelect('Order')">
+                    <div class="relative">
+                        <div id="border-for-second-orders" class="absolute w-[37px] top-[17px] left-[21px] rounded-md border-[#F6D658] h-1 ">
+
+                        </div>
+                    </div>
+                    <span class="pl-2">Orders</span>
+                </div>
+            </div>
+            
+        </div>
+        <div>
+            <div class="flex items-center mb-4 justify-end mt-3">
+                <input id="see-all" type="checkbox" class="w-4 h-4 text-yellow-500 border-gray-300 rounded focus:ring-yellow-400" />
+                <label for="see-all" class="ml-2 text-sm font-medium text-gray-700 ">See All</label>
+            </div>            
+            <div id="auction-table-data" class="overflow-x-auto">
+                <table class="w-full border-collapse min-w-[900px] overflow-x-scroll">
+                    <thead>
+                        <tr class="border-b border-[#EAECEF] text-left">
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Item</th>
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Your Bid</th>
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Highest Bid</th>
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Price</th>
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Time Left</th>
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Action</th>
+                
+                        </tr>
+                    </thead>
+                    <tbody id="auction-table-data-update">
+                        {% for auction in auctions %}
+                        <tr class="border-b border-[#EAECEF]">
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                                <div class="flex gap-10 items-center">
+                                    <div>
+                                        <img src="{{auction.image.small}}" alt="card-image" class="w-[40px] h-[50px]"/>
+                                    </div>
+                                    <div >
+                                        {{ auction.card_entity }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                            {{ auction.client_bid|default:"" }}
+                            </td>
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                            {{ auction.highest_bid|default:"" }}
+                            </td>
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                            {{ auction.starting_price }}
+                            </td>
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                            {{ auction.time_left }}
+                            </td>
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5 flex">
+                                <span class="ml-2 bg-[#D5F2E7] p-2 flex justify-center items-center rounded-[18px]">
+                                    <img src="/static/icons/edit.svg" alt="'edit"/>
+                                </span>
+                                <span class="ml-2 bg-[#FDDADF] p-2 flex justify-center items-center rounded-[18px]">
+                                    <img src="/static/icons/delete.svg" alt="delete"/>
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="12" class="text-center py-6 text-[#999]">No active auctions available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>  
+
+            </div>         
+            <div id="order-table-data" class="overflow-x-auto hidden">
+                <table class="w-full border-collapse min-w-[900px] overflow-x-scroll">
+                    <thead>
+                        <tr class="border-b border-[#EAECEF] text-left">
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Item</th>
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Your Bid</th>
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Highest Bid</th>
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Order Type</th>
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Quantity</th>
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Lowest Ask</th>
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Grade</th>
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Date</th>
+                        <th class="font-semibold text-base pb-3 text-[#1E2329]">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-data-update">
+                        {% for order in orders %}
+                        <tr class="border-b border-[#EAECEF]">
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                                <div class="flex gap-10 items-center">
+                                    <div>
+                                        <img src="{{order.image.small}}" alt="card-image" class="w-[40px] h-[50px]"/>
+                                    </div>
+                                    <div >
+                                        {{ order.card }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                            {{ order.client_bid|default:"" }}
+                            </td>
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                            {{ order.highest_bid|default:"" }}
+                            </td>
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                                {{ order.type }}
+                            </td>
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                                {{ order.quantity }}
+                            </td>
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                                {{ order.lowest_ask }}
+                            </td>
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                                {{ order.grade }}
+                            </td>
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5">
+                                {{ order.date }}
+                            </td>
+                            <td class="font-medium text-base text-[#4B5563] pt-6 pb-5 flex">
+                                <span class="ml-2 bg-[#D5F2E7] p-2 flex justify-center items-center rounded-[18px]">
+                                    <img src="/static/icons/edit.svg" alt="'edit"/>
+                                </span>
+                                <span class="ml-2 bg-[#FDDADF] p-2 flex justify-center items-center rounded-[18px]">
+                                    <img src="/static/icons/delete.svg" alt="delete"/>
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="12" class="text-center py-6 text-[#999]">No active orders available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>                 
+            </div>
+        </div>
+    </div>
+    <div id="map-container" class="flex flex-col items-center mt-20 mb-30">
+        <div id="graph-btns" class="flex gap-x-10 md:gap-x-44">
+            <button value="1m" class="bg-[#EAECEF] w-8 h-8 grid place-items-center">
+                <p class="text-xs md:text-sm text-[#1E2329] font-semibold">1M</p>
+            </button>
+            <button value="3m" class="w-8 h-8 grid place-items-center">
+                <p class="text-xs md:text-sm text-[#1E2329] font-semibold">3M</p>
+            </button>
+            <button value="6m" class="w-8 h-8 grid place-items-center">
+                <p class="text-xs md:text-sm text-[#1E2329] font-semibold">6M</p>
+            </button>
+            <button value="8m" class="w-8 h-8 grid place-items-center">
+                <p class="text-xs md:text-sm text-[#1E2329] font-semibold">8M</p>
+            </button>
+            <button value="1y" class="w-8 h-8 grid place-items-center">
+                <p class="text-xs md:text-sm text-[#1E2329] font-semibold">1Y</p>
+            </button>
+        </div>
+        <canvas class="mt-2 height-[200px] md:height-[600px] w-full" id="myChart"></canvas>
+    </div>
+</div>
